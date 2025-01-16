@@ -1,1 +1,6 @@
-ipykernal
+ipykernel
+pandas
+ydata_profiling
+matplotlib
+numpy
+seaborn
