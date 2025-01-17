@@ -15,7 +15,23 @@ class DataIngestionConfig:
 
 class DataIngestion:
     def __init__(self):
+        
         self.ingestion_config=DataIngestionConfig()
+        
+    def create_delivery_features(self,df_features):
+        
+        df_features['avg_delivery_time_area'] = df_features.groupby('City')['Time_taken'].transform('mean')
+
+        df_features['traffic_weather_impact'] = df_features.groupby(
+            ['Road_traffic_density', 'Weatherconditions']
+        )['Time_taken'].transform('mean')
+
+        df_features['vehicle_capacity_utilization'] = (
+            df_features['multiple_deliveries'] / 
+            df_features.groupby('Type_of_vehicle')['multiple_deliveries'].transform('max')
+        ).fillna(0)
+        
+        return df_features
 
     def initiate_data_ingestion(self):
         logging.info("Entered the data ingestion method or component")
@@ -41,6 +57,10 @@ class DataIngestion:
             # Creating two new column for hour and minute
             df['Hour_order']=df['Time_Orderd'].dt.hour
             df['Min_order']=df['Time_Orderd'].dt.minute
+            
+            df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)
+            
+            df = self.create_delivery_features(df)
             
             logging.info("Train test split initiated")
             train_set,test_set=train_test_split(df,test_size=0.2,random_state=42)
