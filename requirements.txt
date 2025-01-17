@@ -4,3 +4,5 @@ ydata_profiling
 matplotlib
 numpy
 seaborn
+scikit-learn
+ortools
