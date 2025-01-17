@@ -26,7 +26,22 @@ class DataIngestion:
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
 
             df.to_csv(self.ingestion_config.raw_data_path,index=False,header=True)
+            
+            df.drop(['ID'], axis=1, inplace=True) #dropping the ID column(irrelavant)
+            
+            df['Order_Date']=pd.to_datetime(df['Order_Date'])
 
+            # Creating three column for day,month and year
+            df['Order_day']=df['Order_Date'].dt.day
+            df['Order_month']=df['Order_Date'].dt.month
+            df['Order_year']=df['Order_Date'].dt.year
+            
+            df['Time_Orderd'] = pd.to_datetime(df['Time_Orderd'])
+
+            # Creating two new column for hour and minute
+            df['Hour_order']=df['Time_Orderd'].dt.hour
+            df['Min_order']=df['Time_Orderd'].dt.minute
+            
             logging.info("Train test split initiated")
             train_set,test_set=train_test_split(df,test_size=0.2,random_state=42)
 
