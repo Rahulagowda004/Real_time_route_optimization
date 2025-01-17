@@ -5,4 +5,5 @@ matplotlib
 numpy
 seaborn
 scikit-learn
-ortools
+ortool
+-e

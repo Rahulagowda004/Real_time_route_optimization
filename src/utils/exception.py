@@ -1,5 +1,5 @@
 import sys
-from src.Route_optimization_and_predictive_analytics.utils.logger import logging
+from src.utils.logger import logging
 
 def error_message_detail(error,error_detail:sys):
     _,_,exc_tb=error_detail.exc_info()

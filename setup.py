@@ -6,14 +6,14 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 __version__ = "0.0.0"
 
-REPO_NAME = "real-time-route-optimization-and-predictive-analytics"
+REPO_NAME = "Real_time_route_optimization"
 AUTHOR_USER_NAME = "rahulagowda004"
 SRC_REPO = "Source"
 AUTHOR_EMAIL = "Rahulgowda277@gmail.com"
 
 
 setuptools.setup(
-    name=SRC_REPO,
+    name="Real_time_route_optimization",
     version=__version__,
     author=AUTHOR_USER_NAME,
     author_email=AUTHOR_EMAIL,
