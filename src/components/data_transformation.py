@@ -1,3 +1,4 @@
+import os
 import sys
 from dataclasses import dataclass
 
@@ -7,11 +8,9 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,RobustScaler
-from src.components.data_ingestion import DataIngestionConfig
+
 from src.utils.exception import CustomException
 from src.utils.logger import logging
-import os
-
 from src.utils.utils import save_object
 
 @dataclass
@@ -89,6 +88,8 @@ class DataTransformation:
     def initiate_data_transformation(self,train_path,test_path):
 
         try:
+            print("**********Initialized Data Transformation*********")
+            
             train_df=pd.read_csv(train_path)
             test_df=pd.read_csv(test_path)
 
@@ -126,7 +127,9 @@ class DataTransformation:
                 obj=preprocessing_obj
 
             )
-
+            
+            print("*************Ended Data Transformation************")
+            
             return (
                 train_arr,
                 test_arr,
@@ -134,10 +137,3 @@ class DataTransformation:
             )
         except Exception as e:
             raise CustomException(e,sys)
-        
-if __name__=="__main__":
-    data_ingestion = DataIngestionConfig()
-    train_data = data_ingestion.train_data_path
-    test_data = data_ingestion.test_data_path
-    data_transformation = DataTransformation()
-    train_arr,test_arr,_= data_transformation.initiate_data_transformation(train_data,test_data)

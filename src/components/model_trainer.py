@@ -31,6 +31,9 @@ class ModelTrainer:
 
     def initiate_model_trainer(self,train_array,test_array):
         try:
+            
+            print("**********Initialized Model Trainer***************")
+            
             logging.info("Split training and test input data")
             X_train,y_train,X_test,y_test=(
                 train_array[:,:-1],
@@ -110,6 +113,9 @@ class ModelTrainer:
             predicted=best_model.predict(X_test)
 
             r2_square = r2_score(y_test, predicted)
+            
+            print("*************Ended Model Trainer******************")
+            
             return r2_square
               
         except Exception as e:
