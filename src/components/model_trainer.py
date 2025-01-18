@@ -2,7 +2,7 @@ import os
 import sys
 from dataclasses import dataclass
 
-from catboost import CatBoostRegressor
+from catboost import CatBoostRegressor,Pool
 from sklearn.ensemble import (
     AdaBoostRegressor,
     GradientBoostingRegressor,
@@ -27,8 +27,6 @@ class ModelTrainer:
     def __init__(self):
         self.model_trainer_config=ModelTrainerConfig()
         
-    
-
     def initiate_model_trainer(self,train_array,test_array):
         try:
             
@@ -41,6 +39,8 @@ class ModelTrainer:
                 test_array[:,:-1],
                 test_array[:,-1]
             )
+
+            # Define models and hyperparameters
             models = {
                 "Random Forest": RandomForestRegressor(),
                 "Decision Tree": DecisionTreeRegressor(),
@@ -50,56 +50,60 @@ class ModelTrainer:
                 "CatBoosting Regressor": CatBoostRegressor(verbose=False),
                 "AdaBoost Regressor": AdaBoostRegressor(),
             }
-            params={
+
+            params = {
                 "Decision Tree": {
-                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                    # 'splitter':['best','random'],
-                    # 'max_features':['sqrt','log2'],
+                    'criterion': ['squared_error', 'friedman_mse'],
                 },
-                "Random Forest":{
-                    # 'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                 
-                    # 'max_features':['sqrt','log2',None],
-                    'n_estimators': [8,16,32,64,128,256]
+                "Random Forest": {
+                    'n_estimators': [50, 100, 150],
+                    'max_depth': [10, 20, None],
                 },
-                "Gradient Boosting":{
-                    # 'loss':['squared_error', 'huber', 'absolute_error', 'quantile'],
-                    'learning_rate':[.1,.01,.05,.001],
-                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
-                    # 'criterion':['squared_error', 'friedman_mse'],
-                    # 'max_features':['auto','sqrt','log2'],
-                    'n_estimators': [8,16,32,64,128,256]
+                "Gradient Boosting": {
+                    'learning_rate': [0.01, 0.1],
+                    'n_estimators': [50, 100],
                 },
-                "Linear Regression":{},
-                "XGBRegressor":{
-                    'learning_rate':[.1,.01,.05,.001],
-                    'n_estimators': [8,16,32,64,128,256]
+                "XGBRegressor": {
+                    'learning_rate': [0.01, 0.1],
+                    'n_estimators': [50, 100],
                 },
-                "CatBoosting Regressor":{
-                    'depth': [6,8,10],
-                    'learning_rate': [0.01, 0.05, 0.1],
-                    'iterations': [30, 50, 100]
+                "CatBoosting Regressor": {
+                    'depth': [6, 8],
+                    'iterations': [50, 100],
                 },
-                "AdaBoost Regressor":{
-                    'learning_rate':[.1,.01,0.5,.001],
-                    # 'loss':['linear','square','exponential'],
-                    'n_estimators': [8,16,32,64,128,256]
-                }
-                
+                "AdaBoost Regressor": {
+                    'learning_rate': [0.01, 0.1],
+                    'n_estimators': [50, 100],
+                },
             }
 
-            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,
-                                             models=models,param=params)
-            
-            ## To get best model score from dict
-            best_model_score = max(sorted(model_report.values()))
+            # Evaluate models
+            model_report = evaluate_models(X_train, y_train, X_test, y_test, models, params)
 
-            ## To get best model name from dict
-
-            best_model_name = list(model_report.keys())[
-                list(model_report.values()).index(best_model_score)
-            ]
+            # Get the best model
+            best_model_name = max(model_report, key=model_report.get)
+            best_model_score = model_report[best_model_name]
             best_model = models[best_model_name]
+
+            print(f"Best Model: {best_model_name} with R2 Score: {best_model_score}")
+
+            # Ensure the best model is trained
+            if hasattr(best_model, "is_fitted") and not best_model.is_fitted():
+                print(f"{best_model_name} was not properly trained. Training now...")
+                if isinstance(best_model, CatBoostRegressor):
+                    train_pool = Pool(data=X_train, label=y_train)
+                    best_model.fit(train_pool)
+                else:
+                    best_model.fit(X_train, y_train)
+
+            # Predictions and final R2 score
+            if isinstance(best_model, CatBoostRegressor):
+                test_pool = Pool(data=X_test, label=y_test)
+                predicted = best_model.predict(test_pool)
+            else:
+                predicted = best_model.predict(X_test)
+
+            r2_square = r2_score(y_test, predicted)
 
             if best_model_score<0.6:
                 raise CustomException("No best model found")
