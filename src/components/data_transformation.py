@@ -46,8 +46,7 @@ class DataTransformationConfig:
                 "Type_of_vehicle"
             ]
             
-            ordinal_features = ["Vehicle_condition"]
-            ordinal_categories = [[1, 2, 3]]  
+            ordinal_features = ["Vehicle_condition"]  
 
             mean_pipeline = Pipeline(
                 steps=[
@@ -59,14 +58,14 @@ class DataTransformationConfig:
             mode_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("onehot", OneHotEncoder(drop='first', sparse_output=False,handle_unknown='ignore'))
+                    ("onehot", OneHotEncoder(drop='first', sparse_output=False))
                 ]
             )
 
             ordinal_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("ordinal", OrdinalEncoder(categories=ordinal_categories,handle_unknown='ignore'))
+                    ("ordinal", OrdinalEncoder())
                 ]
             )
 
