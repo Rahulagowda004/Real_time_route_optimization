@@ -18,28 +18,25 @@ from src.utils.utils import save_object
 class DataTransformationConfig:
     preprocessor_obj_file_path=os.path.join('artifacts',"proprocessor.pkl")
 
-class DataTransformation:
-    def __init__(self):
-        self.data_transformation_config=DataTransformationConfig()
-        
-        
     def get_data_transformer_object(self):
         try:
+            # Numerical features including time components
             mean_features = [
                 "Delivery_person_Age",
                 "Delivery_person_Ratings",
                 "avg_delivery_time_area",
-                "vehicle_capacity_utilization"
-            ]
-            
-            mode_features = [
-                "multiple_deliveries",
-                "traffic_weather_impact",
+                "vehicle_capacity_utilization",
                 "Order_day",
                 "Order_month",
                 "Order_year",
                 "Hour_order",
-                "Min_order"
+                "Min_order"  # Time features moved here
+            ]
+            
+            # Only truly categorical features
+            mode_features = [
+                "multiple_deliveries",
+                "traffic_weather_impact"
             ]
             
             cat_features = [
@@ -48,41 +45,45 @@ class DataTransformation:
                 "City",
                 "Type_of_vehicle"
             ]
-    
+            
+            ordinal_features = ["Vehicle_condition"]
+            ordinal_categories = [[1, 2, 3]]  # Example categories for ordinal encoding
+
             mean_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="median")),
-                    ("scaler", RobustScaler())  # More robust to outliers
+                    ("scaler", RobustScaler())
                 ]
             )
-    
-            cat_pipeline = Pipeline(
+
+            mode_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="most_frequent")),
                     ("onehot", OneHotEncoder(drop='first', sparse=False))
                 ]
             )
-    
+
             ordinal_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("encoder", OrdinalEncoder())
+                    ("ordinal", OrdinalEncoder(categories=ordinal_categories))
                 ]
             )
-    
+
             preprocessor = ColumnTransformer(
-                [
+                transformers=[
                     ("num_pipeline", mean_pipeline, mean_features),
-                    ("cat_pipeline", cat_pipeline, cat_features),
-                    ("ordinal_pipeline", ordinal_pipeline, ["Vehicle_condition"])
+                    ("cat_pipeline", mode_pipeline, cat_features),
+                    ("mode_pipeline", mode_pipeline, mode_features),
+                    ("ordinal_pipeline", ordinal_pipeline, ordinal_features)
                 ]
             )
-    
+
             return preprocessor
-    
+
         except Exception as e:
-            raise CustomException(e,sys)
-        
+            raise CustomException(e, sys)
+
     def initiate_data_transformation(self,train_path,test_path):
 
         try:
