@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
-
+from geopy.distance import geodesic
 from src.utils.exception import CustomException
 from src.utils.logger import logging
 from src.components.data_transformation import DataTransformation
@@ -25,6 +25,11 @@ class DataIngestion:
         
         self.ingestion_config=DataIngestionConfig()
         
+    def calculate_distance(self,row):
+        restaurant_coords = (row['translogi_latitude'], row['translogi_longitude'])
+        delivery_coords = (row['Delivery_location_latitude'], row['Delivery_location_longitude'])
+        return geodesic(restaurant_coords, delivery_coords).kilometers
+    
     def create_delivery_features(self,df_features):
         
         df_features['avg_delivery_time_area'] = df_features.groupby('City')['Time_taken'].transform('mean')
@@ -37,6 +42,8 @@ class DataIngestion:
             df_features['multiple_deliveries'] / 
             df_features.groupby('Type_of_vehicle')['multiple_deliveries'].transform('max')
         ).fillna(0)
+        
+        df_features['distance'] = df_features.apply(self.calculate_distance, axis=1)
         
         return df_features
 
