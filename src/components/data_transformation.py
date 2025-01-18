@@ -18,6 +18,9 @@ from src.utils.utils import save_object
 class DataTransformationConfig:
     preprocessor_obj_file_path=os.path.join('artifacts',"proprocessor.pkl")
 
+class DataTransformation:
+    def __init__(self):
+        self.data_transformation_config=DataTransformationConfig()
     def get_data_transformer_object(self):
         try:
             # Numerical features including time components
@@ -136,5 +139,5 @@ if __name__=="__main__":
     data_ingestion = DataIngestionConfig()
     train_data = data_ingestion.train_data_path
     test_data = data_ingestion.test_data_path
-    data_transformation=DataTransformationConfig()
-    train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data,test_data)
+    data_transformation = DataTransformation()
+    train_arr,test_arr,_= data_transformation.initiate_data_transformation(train_data,test_data)
