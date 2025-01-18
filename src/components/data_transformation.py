@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder,StandardScaler,OrdinalEncoder
+from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,RobustScaler
 
 from src.utils.exception import CustomException
 from src.utils.logger import logging
@@ -21,68 +21,65 @@ class DataTransformationConfig:
 class DataTransformation:
     def __init__(self):
         self.data_transformation_config=DataTransformationConfig()
-
-    def get_data_transformer_object(self):
-        '''
-        This function is responsible for data transformation
         
-        '''
+        
+    def get_data_transformer_object(self):
         try:
-            numerical_columns = ["writing_score", "reading_score"]
-            categorical_columns = [
-                "gender",
-                "race_ethnicity",
-                "parental_level_of_education",
-                "lunch",
-                "test_preparation_course",
+            mean_features = [
+                "Delivery_person_Age",
+                "Delivery_person_Ratings",
+                "avg_delivery_time_area",
+                "vehicle_capacity_utilization"
             ]
             
+            mode_features = [
+                "multiple_deliveries",
+                "traffic_weather_impact",
+                "Order_day",
+                "Order_month",
+                "Order_year",
+                "Hour_order",
+                "Min_order"
+            ]
             
-            mean_features = ["Delivery_person_Age","Delivery_person_Ratings","avg_delivery_time_area"]
-            mode_features = ["Weatherconditions","multiple_deliveries","traffic_weather_impact",
-            "Road_traffic_density","City","Order_day","Order_month","Order_year","Hour_order","Min_order",]
-            OE_features = ["Vehicle_condition",'Weatherconditions', 'Type_of_vehicle',"Road_traffic_density","City"]
-
-            mean_pipeline= Pipeline(
+            cat_features = [
+                "Weatherconditions",
+                "Road_traffic_density",
+                "City",
+                "Type_of_vehicle"
+            ]
+    
+            mean_pipeline = Pipeline(
                 steps=[
-                ("imputer",SimpleImputer(strategy="median"))
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("scaler", RobustScaler())  # More robust to outliers
                 ]
             )
-
-            mode_pipeline=Pipeline(
-
+    
+            cat_pipeline = Pipeline(
                 steps=[
-                ("imputer",SimpleImputer(strategy="most_frequent")),
-                ]
-
-            )
-            
-            OE_pipeline=Pipeline(
-                steps=[
-                ("encoder",OrdinalEncoder())
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("onehot", OneHotEncoder(drop='first', sparse=False))
                 ]
             )
-            
-            # SS_pipeline=Pipeline(
-            #     steps=[
-            #     ("encoder",StandardScaler())
-            #     ]
-            # )
-
-            logging.info(f"Categorical columns: {categorical_columns}")
-            logging.info(f"Numerical columns: {numerical_columns}")
-
-            preprocessor=ColumnTransformer(
+    
+            ordinal_pipeline = Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("encoder", OrdinalEncoder())
+                ]
+            )
+    
+            preprocessor = ColumnTransformer(
                 [
-                ("num_pipeline",mean_pipeline,mean_features),
-                ("cat_pipelines",mode_pipeline,mode_features),
-                ("OE_pipelines",OE_pipeline,OE_features),
-                # ("SS_pipelines",SS_pipeline,numerical_columns)
+                    ("num_pipeline", mean_pipeline, mean_features),
+                    ("cat_pipeline", cat_pipeline, cat_features),
+                    ("ordinal_pipeline", ordinal_pipeline, ["Vehicle_condition"])
                 ]
             )
-
+    
             return preprocessor
-        
+    
         except Exception as e:
             raise CustomException(e,sys)
         
