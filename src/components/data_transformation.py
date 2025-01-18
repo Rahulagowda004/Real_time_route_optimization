@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder,StandardScaler
+from sklearn.preprocessing import OneHotEncoder,StandardScaler,OrdinalEncoder
 
 from src.utils.exception import CustomException
 from src.utils.logger import logging
@@ -24,7 +24,7 @@ class DataTransformation:
 
     def get_data_transformer_object(self):
         '''
-        This function si responsible for data trnasformation
+        This function is responsible for data transformation
         
         '''
         try:
@@ -36,35 +36,49 @@ class DataTransformation:
                 "lunch",
                 "test_preparation_course",
             ]
+            
+            
+            mean_features = ["Delivery_person_Age","Delivery_person_Ratings","avg_delivery_time_area"]
+            mode_features = ["Weatherconditions","multiple_deliveries","traffic_weather_impact",
+            "Road_traffic_density","City","Order_day","Order_month","Order_year","Hour_order","Min_order",]
+            OE_features = ["Vehicle_condition",'Weatherconditions', 'Type_of_vehicle',"Road_traffic_density","City"]
 
-            num_pipeline= Pipeline(
+            mean_pipeline= Pipeline(
                 steps=[
-                ("imputer",SimpleImputer(strategy="median")),
-                ("scaler",StandardScaler())
+                ("imputer",SimpleImputer(strategy="median"))
                 ]
             )
 
-            cat_pipeline=Pipeline(
+            mode_pipeline=Pipeline(
 
                 steps=[
                 ("imputer",SimpleImputer(strategy="most_frequent")),
-                ("one_hot_encoder",OneHotEncoder()),
-                ("scaler",StandardScaler(with_mean=False))
                 ]
 
             )
+            
+            OE_pipeline=Pipeline(
+                steps=[
+                ("encoder",OrdinalEncoder())
+                ]
+            )
+            
+            # SS_pipeline=Pipeline(
+            #     steps=[
+            #     ("encoder",StandardScaler())
+            #     ]
+            # )
 
             logging.info(f"Categorical columns: {categorical_columns}")
             logging.info(f"Numerical columns: {numerical_columns}")
 
             preprocessor=ColumnTransformer(
                 [
-                ("num_pipeline",num_pipeline,numerical_columns),
-                ("cat_pipelines",cat_pipeline,categorical_columns)
-
+                ("num_pipeline",mean_pipeline,mean_features),
+                ("cat_pipelines",mode_pipeline,mode_features),
+                ("OE_pipelines",OE_pipeline,OE_features),
+                # ("SS_pipelines",SS_pipeline,numerical_columns)
                 ]
-
-
             )
 
             return preprocessor
