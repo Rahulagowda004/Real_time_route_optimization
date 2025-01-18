@@ -7,7 +7,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,RobustScaler
-
+from src.components.data_ingestion import DataIngestionConfig
 from src.utils.exception import CustomException
 from src.utils.logger import logging
 import os
@@ -30,7 +30,7 @@ class DataTransformationConfig:
                 "Order_month",
                 "Order_year",
                 "Hour_order",
-                "Min_order"  # Time features moved here
+                "Min_order" 
             ]
             
             # Only truly categorical features
@@ -47,11 +47,11 @@ class DataTransformationConfig:
             ]
             
             ordinal_features = ["Vehicle_condition"]
-            ordinal_categories = [[1, 2, 3]]  # Example categories for ordinal encoding
+            ordinal_categories = [[1, 2, 3]]  
 
             mean_pipeline = Pipeline(
                 steps=[
-                    ("imputer", SimpleImputer(strategy="median")),
+                    ("imputer", SimpleImputer(strategy="median",)),
                     ("scaler", RobustScaler())
                 ]
             )
@@ -59,14 +59,14 @@ class DataTransformationConfig:
             mode_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("onehot", OneHotEncoder(drop='first', sparse=False))
+                    ("onehot", OneHotEncoder(drop='first', sparse_output=False,handle_unknown='ignore'))
                 ]
             )
 
             ordinal_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("ordinal", OrdinalEncoder(categories=ordinal_categories))
+                    ("ordinal", OrdinalEncoder(categories=ordinal_categories,handle_unknown='ignore'))
                 ]
             )
 
@@ -132,3 +132,10 @@ class DataTransformationConfig:
             )
         except Exception as e:
             raise CustomException(e,sys)
+        
+if __name__=="__main__":
+    data_ingestion = DataIngestionConfig()
+    train_data = data_ingestion.train_data_path
+    test_data = data_ingestion.test_data_path
+    data_transformation=DataTransformationConfig()
+    train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data,test_data)
