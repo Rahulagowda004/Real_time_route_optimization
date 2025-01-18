@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,RobustScaler
+from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,RobustScaler,MinMaxScaler,StandardScaler
 
 from src.utils.exception import CustomException
 from src.utils.logger import logging
@@ -32,7 +32,11 @@ class DataTransformation:
                 "Order_month",
                 "Order_year",
                 "Hour_order",
-                "Min_order" 
+                "Min_order" ,
+                "distance",
+            ]
+            
+            location_features = ["translogi_latitude","translogi_longitude","Delivery_location_latitude","Delivery_location_longitude","distance"
             ]
             
             # Only truly categorical features
@@ -52,7 +56,7 @@ class DataTransformation:
 
             mean_pipeline = Pipeline(
                 steps=[
-                    ("imputer", SimpleImputer(strategy="median",)),
+                    ("imputer", SimpleImputer(strategy="mean",)),
                     ("scaler", RobustScaler())
                 ]
             )
@@ -70,13 +74,20 @@ class DataTransformation:
                     ("ordinal", OrdinalEncoder())
                 ]
             )
-
+            
+            location_pipeline = Pipeline(
+                steps=[
+                    ("scaler", StandardScaler())
+                ]
+            )
+            
             preprocessor = ColumnTransformer(
                 transformers=[
                     ("num_pipeline", mean_pipeline, mean_features),
                     ("cat_pipeline", mode_pipeline, cat_features),
                     ("mode_pipeline", mode_pipeline, mode_features),
-                    ("ordinal_pipeline", ordinal_pipeline, ordinal_features)
+                    ("ordinal_pipeline", ordinal_pipeline, ordinal_features),
+                    ("location_pipeline", location_pipeline, location_features)
                 ]
             )
 
