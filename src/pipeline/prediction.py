@@ -6,6 +6,9 @@ from geopy.distance import geodesic
 from src.utils.exception import CustomException
 from src.utils.utils import load_object
 
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
+
 class preprocess:
     def __init__(self):
         # Load pre-trained preprocessor objects
@@ -156,5 +159,5 @@ class CustomData:
         
 if __name__ == "__main__":
     obj=PredictPipeline()
-    df = pd.read_csv("artifacts/Prediction/test.csv")
+    df = pd.read_csv("artifacts/Data/dataset.csv")
     obj.predict(df)
