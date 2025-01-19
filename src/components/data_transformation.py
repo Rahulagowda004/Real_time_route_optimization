@@ -15,7 +15,7 @@ from src.utils.utils import save_object
 
 @dataclass
 class DataTransformationConfig:
-    preprocessor_obj_file_path=os.path.join('artifacts',"proprocessor.pkl")
+    preprocessor_obj_file_path=os.path.join('artifacts/preprocessor',"proprocessor.pkl")
 
 class DataTransformation:
     def __init__(self):
@@ -36,8 +36,13 @@ class DataTransformation:
                 "distance",
             ]
             
-            location_features = ["translogi_latitude","translogi_longitude","Delivery_location_latitude","Delivery_location_longitude","distance"
-            ]
+            location_features = [
+                "translogi_latitude",
+                "translogi_longitude",
+                "Delivery_location_latitude",
+                "Delivery_location_longitude",
+                "distance"
+                ]
             
             # Only truly categorical features
             mode_features = [

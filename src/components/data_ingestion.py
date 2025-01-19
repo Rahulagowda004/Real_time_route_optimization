@@ -17,9 +17,9 @@ warnings.filterwarnings('ignore', category=UserWarning)
 
 @dataclass
 class DataIngestionConfig:
-    train_data_path: str=os.path.join('artifacts',"train.csv")
-    test_data_path: str=os.path.join('artifacts',"test.csv")
-    raw_data_path: str=os.path.join('artifacts',"Dataset.csv")
+    train_data_path: str=os.path.join('artifacts/Data',"train.csv")
+    test_data_path: str=os.path.join('artifacts/Data',"test.csv")
+    raw_data_path: str=os.path.join('artifacts/Data',"dataset.csv")
 
 class DataIngestion:
     def __init__(self):
@@ -62,9 +62,9 @@ class DataIngestion:
             
             df_features['distance'] = df_features.apply(calculate_distance, axis=1)
             
-            joblib.dump(avg_delivery_time_area, 'avg_delivery_time_area.pkl')
-            joblib.dump(traffic_weather_impact, 'traffic_weather_impact.pkl')
-            joblib.dump(max_deliveries_per_vehicle, 'max_deliveries_per_vehicle.pkl')
+            joblib.dump(avg_delivery_time_area, 'artifacts/preprocessor/avg_delivery_time_area.pkl')
+            joblib.dump(traffic_weather_impact, 'artifacts/preprocessor/traffic_weather_impact.pkl')
+            joblib.dump(max_deliveries_per_vehicle, 'artifacts/preprocessor/max_deliveries_per_vehicle.pkl')
             
             return df_features
 
@@ -120,13 +120,13 @@ if __name__=="__main__":
     obj=DataIngestion()
     train_data,test_data=obj.initiate_data_ingestion()
     
-    # data_transformation=DataTransformation()
-    # train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data,test_data)
+    data_transformation=DataTransformation()
+    train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data,test_data)
     
-    # # train_arr = pd.DataFrame(train_arr)
-    # # test_arr = pd.DataFrame(test_arr)
-    # # train_arr.to_csv("train_arr.csv",index=False,header=True)
-    # # test_arr.to_csv("test_arr.csv",index=False,header=True)
+    train_arr = pd.DataFrame(train_arr)
+    test_arr = pd.DataFrame(test_arr)
+    train_arr.to_csv("train_arr.csv",index=False,header=True)
+    test_arr.to_csv("test_arr.csv",index=False,header=True)
     
     # modeltrainer=ModelTrainer()
     # print(modeltrainer.initiate_model_trainer(train_arr,test_arr))
