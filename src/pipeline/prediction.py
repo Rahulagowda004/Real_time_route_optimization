@@ -18,7 +18,7 @@ class preprocess:
 
     
     def clean_df(self,df):
-        
+        df = df.copy()
         try:
             def add_features_for_prediction(df):
                 try:
@@ -51,7 +51,8 @@ class preprocess:
             df['Time_Orderd'] = pd.to_datetime(df['Time_Orderd'])
             df['Hour_order']=df['Time_Orderd'].dt.hour
             df['Min_order']=df['Time_Orderd'].dt.minute
-            df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)  
+            df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)
+            df['City'].fillna("unknown",inplace=True)
             df = add_features_for_prediction(df)
             return df
         except Exception as e:

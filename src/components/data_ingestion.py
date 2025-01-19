@@ -72,26 +72,22 @@ class DataIngestion:
         logging.info("Entered the data ingestion method or component")
         try:
             df=pd.read_csv(self.ingestion_config.raw_data_path)
+            df = df.copy()
             logging.info('Read the dataset as dataframe')
 
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
             
             def clean_df(df):
                 df.drop(['ID'], axis=1, inplace=True) #dropping the ID column(irrelavant)
-                
                 df['Order_Date']=pd.to_datetime(df['Order_Date'])
-
                 df['Order_day']=df['Order_Date'].dt.day
                 df['Order_month']=df['Order_Date'].dt.month
                 df['Order_year']=df['Order_Date'].dt.year
-                
                 df['Time_Orderd'] = pd.to_datetime(df['Time_Orderd'])
-
                 df['Hour_order']=df['Time_Orderd'].dt.hour
                 df['Min_order']=df['Time_Orderd'].dt.minute
-                
                 df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)
-                
+                df['City'] = df['City'].fillna("unknown")
                 df = create_delivery_features(df)
                 
                 return df

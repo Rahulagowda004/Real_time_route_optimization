@@ -69,7 +69,7 @@ class DataTransformation:
             mode_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("onehot", OneHotEncoder(drop='first', sparse_output=False))
+                    ("onehot", OneHotEncoder(drop='first', sparse_output=False,handle_unknown="ignore"))
                 ]
             )
 
