@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import joblib
 from dataclasses import dataclass
 from geopy.distance import geodesic
 from src.utils.exception import CustomException
@@ -28,24 +29,42 @@ class DataIngestion:
     def initiate_data_ingestion(self):
         
         def create_delivery_features(df_features):
+            
+            avg_delivery_time_area = df_features.groupby('City')['Time_taken'].mean().to_dict()
+
+            traffic_weather_impact = (
+                df_features.groupby(['Road_traffic_density', 'Weatherconditions'])['Time_taken'].mean().to_dict()
+            )
+
+            # Maximum deliveries by vehicle type for capacity utilization
+            max_deliveries_per_vehicle = (
+                df_features.groupby('Type_of_vehicle')['multiple_deliveries'].max().to_dict()
+            )
         
             def calculate_distance(row):
                 restaurant_coords = (row['translogi_latitude'], row['translogi_longitude'])
                 delivery_coords = (row['Delivery_location_latitude'], row['Delivery_location_longitude'])
                 return geodesic(restaurant_coords, delivery_coords).kilometers
             
-            df_features['avg_delivery_time_area'] = df_features.groupby('City')['Time_taken'].transform('mean')
-
-            df_features['traffic_weather_impact'] = df_features.groupby(
-                ['Road_traffic_density', 'Weatherconditions']
-            )['Time_taken'].transform('mean')
-
-            df_features['vehicle_capacity_utilization'] = (
-                df_features['multiple_deliveries'] / 
-                df_features.groupby('Type_of_vehicle')['multiple_deliveries'].transform('max')
+            df_features['avg_delivery_time_area'] = df['City'].map(avg_delivery_time_area)
+    
+            # Map traffic and weather impact
+            df_features['traffic_weather_impact'] = df.apply(
+                lambda row: traffic_weather_impact.get((row['Road_traffic_density'], row['Weatherconditions']), None),
+                axis=1
+            )
+            
+            # Calculate vehicle capacity utilization
+            df_features['vehicle_capacity_utilization'] = df.apply(
+                lambda row: row['multiple_deliveries'] / max_deliveries_per_vehicle.get(row['Type_of_vehicle'], 1),
+                axis=1
             ).fillna(0)
             
             df_features['distance'] = df_features.apply(calculate_distance, axis=1)
+            
+            joblib.dump(avg_delivery_time_area, 'avg_delivery_time_area.pkl')
+            joblib.dump(traffic_weather_impact, 'traffic_weather_impact.pkl')
+            joblib.dump(max_deliveries_per_vehicle, 'max_deliveries_per_vehicle.pkl')
             
             return df_features
 
