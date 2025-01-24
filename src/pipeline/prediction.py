@@ -57,13 +57,14 @@ class Preprocess:
             df['Order_month'] = df['Order_Date'].dt.month
             df['Order_year'] = df['Order_Date'].dt.year
             df['Time_Orderd'] = pd.to_datetime(df['Time_Orderd'])
-            df['Hour_order'] = df['Time_Orderd'].dt.hour
-            df['Min_order'] = df['Time_Orderd'].dt.minute
-            df.drop(["Time_Orderd", "Order_Date"], axis=1, inplace=True)
+            df['Hour_order']=df['Time_Orderd'].dt.hour
+            df['Min_order']=df['Time_Orderd'].dt.minute
+            df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)
+            df['City'].fillna("unknown",inplace=True)
             df = add_features_for_prediction(df)
             return df
         except Exception as e:
-            raise CustomException(e, sys)
+            raise CustomException(e,sys)
 
 class PredictPipeline:
     def __init__(self):
