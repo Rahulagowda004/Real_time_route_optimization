@@ -61,7 +61,7 @@ class DataIngestion:
             ).fillna(0)
             
             df_features['distance'] = df_features.apply(calculate_distance, axis=1)
-            
+            os.makedirs('artifacts/preprocessor/', exist_ok=True)
             joblib.dump(avg_delivery_time_area, 'artifacts/preprocessor/avg_delivery_time_area.pkl')
             joblib.dump(traffic_weather_impact, 'artifacts/preprocessor/traffic_weather_impact.pkl')
             joblib.dump(max_deliveries_per_vehicle, 'artifacts/preprocessor/max_deliveries_per_vehicle.pkl')
