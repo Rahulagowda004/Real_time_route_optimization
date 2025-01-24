@@ -12,6 +12,7 @@ from src.utils.utils import load_object
 
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore', category=FutureWarning)
 
 
 class Preprocess:
@@ -60,6 +61,7 @@ class Preprocess:
             df['Hour_order']=df['Time_Orderd'].dt.hour
             df['Min_order']=df['Time_Orderd'].dt.minute
             df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)
+            df['city'] = df['City'].fillna("unknown",inplace=True)
             df = add_features_for_prediction(df)
             return df
         except Exception as e:
