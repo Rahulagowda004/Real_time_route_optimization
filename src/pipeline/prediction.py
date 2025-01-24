@@ -60,12 +60,10 @@ class Preprocess:
             df['Hour_order'] = df['Time_Orderd'].dt.hour
             df['Min_order'] = df['Time_Orderd'].dt.minute
             df.drop(["Time_Orderd", "Order_Date"], axis=1, inplace=True)
-            df['City'].fillna("unknown", inplace=True)
             df = add_features_for_prediction(df)
             return df
         except Exception as e:
             raise CustomException(e, sys)
-
 
 class PredictPipeline:
     def __init__(self):
