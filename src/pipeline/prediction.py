@@ -3,21 +3,28 @@ import os
 import joblib
 import pandas as pd
 from geopy.distance import geodesic
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, RobustScaler, StandardScaler
+from sklearn.compose import ColumnTransformer
 from src.utils.exception import CustomException
 from src.utils.utils import load_object
 
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning)
 
-class preprocess:
+
+class Preprocess:
     def __init__(self):
         # Load pre-trained preprocessor objects
-        self.avg_delivery_time_area = joblib.load('artifacts/preprocessor/avg_delivery_time_area.pkl')
-        self.traffic_weather_impact = joblib.load('artifacts/preprocessor/traffic_weather_impact.pkl')
-        self.max_deliveries_per_vehicle = joblib.load('artifacts/preprocessor/max_deliveries_per_vehicle.pkl')
-
+        try:
+            self.avg_delivery_time_area = joblib.load('artifacts/preprocessor/avg_delivery_time_area.pkl')
+            self.traffic_weather_impact = joblib.load('artifacts/preprocessor/traffic_weather_impact.pkl')
+            self.max_deliveries_per_vehicle = joblib.load('artifacts/preprocessor/max_deliveries_per_vehicle.pkl')
+        except Exception as e:
+            raise CustomException(e, sys)
     
-    def clean_df(self,df):
+    def clean_df(self, df):
         df = df.copy()
         try:
             def add_features_for_prediction(df):
@@ -38,52 +45,134 @@ class preprocess:
                         restaurant_coords = (row['translogi_latitude'], row['translogi_longitude'])
                         delivery_coords = (row['Delivery_location_latitude'], row['Delivery_location_longitude'])
                         return geodesic(restaurant_coords, delivery_coords).kilometers
+                    
                     df['distance'] = df.apply(calculate_distance, axis=1)
                     return df
                 except Exception as e:
-                    raise CustomException(e,sys)
+                    raise CustomException(e, sys)
             
-            df.drop(['ID'], axis=1, inplace=True) #dropping the ID column(irrelavant)
-            df['Order_Date']=pd.to_datetime(df['Order_Date'])
-            df['Order_day']=df['Order_Date'].dt.day
-            df['Order_month']=df['Order_Date'].dt.month
-            df['Order_year']=df['Order_Date'].dt.year
+            df.drop(['ID'], axis=1, inplace=True)  # Drop irrelevant column
+            df['Order_Date'] = pd.to_datetime(df['Order_Date'])
+            df['Order_day'] = df['Order_Date'].dt.day
+            df['Order_month'] = df['Order_Date'].dt.month
+            df['Order_year'] = df['Order_Date'].dt.year
             df['Time_Orderd'] = pd.to_datetime(df['Time_Orderd'])
-            df['Hour_order']=df['Time_Orderd'].dt.hour
-            df['Min_order']=df['Time_Orderd'].dt.minute
-            df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)
-            df['City'].fillna("unknown",inplace=True)
+            df['Hour_order'] = df['Time_Orderd'].dt.hour
+            df['Min_order'] = df['Time_Orderd'].dt.minute
+            df.drop(["Time_Orderd", "Order_Date"], axis=1, inplace=True)
+            df['City'].fillna("unknown", inplace=True)
             df = add_features_for_prediction(df)
             return df
         except Exception as e:
-            raise CustomException(e,sys)
+            raise CustomException(e, sys)
+
 
 class PredictPipeline:
     def __init__(self):
-        pass
-    
-    def predict(self,dataframe):
         try:
-            model_path=os.path.join("artifacts/model","best_model.pkl")
-            preprocessor_path=os.path.join('artifacts/preprocessor','preprocessor.pkl')
-            print("Before Loading")
-            model=load_object(file_path=model_path)
-            preprocessor=load_object(file_path=preprocessor_path)
-            print("After Loading")
-            
-            clean = preprocess()
-            dataframe=clean.clean_df(dataframe)
-            
-            data_scaled=preprocessor.transform(dataframe)
-            preds=model.predict(data_scaled)
-            print("Predictions: ",preds)
-            preds = pd.DataFrame(preds, columns=['Predictions'])
-            preds.to_csv("artifacts/Prediction/Predictions.csv", index=False)
-            return preds
-        
+            self.model_path = os.path.join("artifacts/model", "best_model.pkl")
+            self.model = load_object(self.model_path)
         except Exception as e:
-            raise CustomException(e,sys)
-        
+            raise CustomException(e, sys)
+    
+    def predict(self, dataframe):
+        try:
+            preprocessor = self.get_data_transformer_object()
+
+            preprocess = Preprocess()
+            dataframe = preprocess.clean_df(dataframe)
+            
+            data_scaled = preprocessor.fit_transform(dataframe)
+            preds = self.model.predict(data_scaled)
+            print("Predictions: ", preds)
+
+            preds_df = pd.DataFrame(preds, columns=['Predictions'])
+            preds_df.to_csv("artifacts/Prediction/Predictions.csv", index=False)
+            return preds_df
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def get_data_transformer_object(self):
+        try:
+            # Numerical features including time components
+            mean_features = [
+                "Delivery_person_Age",
+                "Delivery_person_Ratings",
+                "avg_delivery_time_area",
+                "vehicle_capacity_utilization",
+                "Order_day",
+                "Order_month",
+                "Order_year",
+                "Hour_order",
+                "Min_order",
+                "distance",
+            ]
+            
+            location_features = [
+                "translogi_latitude",
+                "translogi_longitude",
+                "Delivery_location_latitude",
+                "Delivery_location_longitude",
+                "distance"
+            ]
+            
+            # Only truly categorical features
+            mode_features = [
+                "multiple_deliveries",
+                "traffic_weather_impact"
+            ]
+            
+            cat_features = [
+                "Weatherconditions",
+                "Road_traffic_density",
+                "City",
+                "Type_of_vehicle"
+            ]
+            
+            ordinal_features = ["Vehicle_condition"]
+
+            mean_pipeline = Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="mean")),
+                    ("scaler", RobustScaler())
+                ]
+            )
+
+            mode_pipeline = Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("onehot", OneHotEncoder(drop='first', sparse_output=False, handle_unknown="ignore"))
+                ]
+            )
+
+            ordinal_pipeline = Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("ordinal", OrdinalEncoder())
+                ]
+            )
+            
+            location_pipeline = Pipeline(
+                steps=[
+                    ("scaler", StandardScaler())
+                ]
+            )
+            
+            preprocessor = ColumnTransformer(
+                transformers=[
+                    ("num_pipeline", mean_pipeline, mean_features),
+                    ("cat_pipeline", mode_pipeline, cat_features),
+                    ("mode_pipeline", mode_pipeline, mode_features),
+                    ("ordinal_pipeline", ordinal_pipeline, ordinal_features),
+                    ("location_pipeline", location_pipeline, location_features)
+                ]
+            )
+
+            return preprocessor
+        except Exception as e:
+            raise CustomException(e, sys)
+
+
 class CustomData:
     def __init__(
         self,
@@ -147,18 +236,16 @@ class CustomData:
                 "traffic_weather_impact": [self.traffic_weather_impact],
                 "vehicle_capacity_utilization": [self.vehicle_capacity_utilization]
             }
-            
-            
             return pd.DataFrame(custom_data_input_dict)
         except Exception as e:
             raise CustomException(e, sys)
-        
-    # df = self.get_data_as_data_frame()
-    # obj = PredictPipeline()
-    # time_taken = obj.predict(df)
-    # print("The time consuming for the delivery would be: ", time_taken)
-        
+
+
 if __name__ == "__main__":
-    obj=PredictPipeline()
-    df = pd.read_csv("artifacts/Data/dataset.csv")
-    obj.predict(df)
+    try:
+        pipeline = PredictPipeline()
+        df = pd.read_csv("artifacts/Prediction/Validation_set.csv")
+        predictions = pipeline.predict(df)
+        print(predictions)
+    except Exception as e:
+        print(f"An error occurred: {e}")

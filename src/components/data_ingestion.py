@@ -87,7 +87,7 @@ class DataIngestion:
                 df['Hour_order']=df['Time_Orderd'].dt.hour
                 df['Min_order']=df['Time_Orderd'].dt.minute
                 df.drop(["Time_Orderd", "Order_Date"],axis = 1, inplace= True)
-                df['City'] = df['City'].fillna("unknown")
+                # df['City'] = df['City'].fillna("unknown")
                 df = create_delivery_features(df)
                 
                 return df

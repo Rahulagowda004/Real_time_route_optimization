@@ -20,6 +20,87 @@ class DataTransformationConfig:
 class DataTransformation:
     def __init__(self):
         self.data_transformation_config=DataTransformationConfig()
+        
+    def get_data_transformer_object(self):
+        try:
+            # Numerical features including time components
+            mean_features = [
+                "Delivery_person_Age",
+                "Delivery_person_Ratings",
+                "avg_delivery_time_area",
+                "vehicle_capacity_utilization",
+                "Order_day",
+                "Order_month",
+                "Order_year",
+                "Hour_order",
+                "Min_order" ,
+                "distance",
+            ]
+            
+            location_features = [
+                "translogi_latitude",
+                "translogi_longitude",
+                "Delivery_location_latitude",
+                "Delivery_location_longitude",
+                "distance"
+                ]
+            
+            # Only truly categorical features
+            mode_features = [
+                "multiple_deliveries",
+                "traffic_weather_impact"
+            ]
+            
+            cat_features = [
+                "Weatherconditions",
+                "Road_traffic_density",
+                "City",
+                "Type_of_vehicle"
+            ]
+            
+            ordinal_features = ["Vehicle_condition"]  
+
+            mean_pipeline = Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="mean",)),
+                    ("scaler", RobustScaler())
+                ]
+            )
+
+            mode_pipeline = Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("onehot", OneHotEncoder(drop='first', sparse_output=False,handle_unknown="ignore"))
+                ]
+            )
+
+            ordinal_pipeline = Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("ordinal", OrdinalEncoder())
+                ]
+            )
+            
+            location_pipeline = Pipeline(
+                steps=[
+                    ("scaler", StandardScaler())
+                ]
+            )
+            
+            preprocessor = ColumnTransformer(
+                transformers=[
+                    ("num_pipeline", mean_pipeline, mean_features),
+                    ("cat_pipeline", mode_pipeline, cat_features),
+                    ("mode_pipeline", mode_pipeline, mode_features),
+                    ("ordinal_pipeline", ordinal_pipeline, ordinal_features),
+                    ("location_pipeline", location_pipeline, location_features)
+                ]
+            )
+
+            return preprocessor
+
+        except Exception as e:
+            raise CustomException(e, sys)
     def get_data_transformer_object(self):
         try:
             # Numerical features including time components
