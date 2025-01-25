@@ -1,1 +1,35 @@
 make sure the over all dataset has just 3000 rows 
+
+Delivery_person_Age
+Delivery_person_Ratings
+avg_delivery_time_area
+vehicle_capacity_utilization
+Order_day
+Order_month
+Order_year
+Hour_order
+Min_order
+distance
+translogi_latitude
+translogi_longitude
+Delivery_location_latitude
+Delivery_location_longitude
+multiple_deliveries
+traffic_weather_impact
+Weatherconditions
+Road_traffic_density
+City
+Type_of_vehicle
+Vehicle_condition
+
+mode_features = [Weatherconditions,Road_traffic_density,City]
+
+mean_features = [Delivery_person_Age,Delivery_person_Ratings,multiple_deliveries,Hour_order,Min_order]
+
+OHE_categories = ["Road_traffic_density","Type_of_vehicle"]
+
+ordinal_categories = ["Road_traffic_density","Weatherconditions","Type_of_vehicle","City"]
+
+robust_features = ["translogi_latitude","translogi_longitude","Delivery_location_latitude","Delivery_location_longitude"]
+
+standardize_features = ["Temperature","Traffic_Index","Delivery_person_Age","Delivery_person_Ratings"]
