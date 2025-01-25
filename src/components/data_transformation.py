@@ -41,9 +41,10 @@ class DataTransformation:
 
             ordinal_pipeline = Pipeline(steps=[
                 ('imputer', SimpleImputer(strategy='most_frequent')),
+                ('ordinal', OrdinalEncoder()),
+                ('scaler', RobustScaler())
             ])
 
-            # Numerical features (imputation + scaling/standardization)
             num_pipeline_standardize = Pipeline(steps=[
                 ('imputer', SimpleImputer(strategy='mean')),  
                 ('scaler', StandardScaler())  
