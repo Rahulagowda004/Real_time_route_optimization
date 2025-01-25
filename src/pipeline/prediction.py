@@ -140,73 +140,81 @@ class PredictPipeline:
             raise CustomException(e, sys)
 
 
-class CustomData:
+class CustomClass:
     def __init__(
         self,
+        ID: int,
         delivery_person_age: float,
         delivery_person_ratings: float,
+        translogi_latitude: float,
+        translogi_longitude: float,
         delivery_location_latitude: float,
         delivery_location_longitude: float,
+        order_date: str,  # Assuming 'Order_Date' is a string or datetime object
+        time_orderd: float,  # Assuming 'Time_Orderd' is float type representing the time
         weatherconditions: str,
         road_traffic_density: str,
         vehicle_condition: int,
         type_of_vehicle: str,
         multiple_deliveries: float,
         city: str,
-        order_day: int,
-        order_month: int,
-        order_year: int,
-        hour_order: float,
-        min_order: float,
-        avg_delivery_time_area: float,
-        traffic_weather_impact: float,
-        vehicle_capacity_utilization: float
+        temperature: float,  # Added temperature as per the new list
+        traffic_index: float,  # Added traffic index as per the new list
+        time_taken: float  # Replaced avg_delivery_time_area with Time_taken
     ):
+        self.ID = ID
         self.delivery_person_age = delivery_person_age
         self.delivery_person_ratings = delivery_person_ratings
+        self.translogi_latitude = translogi_latitude
+        self.translogi_longitude = translogi_longitude
         self.delivery_location_latitude = delivery_location_latitude
         self.delivery_location_longitude = delivery_location_longitude
+        self.order_date = order_date
+        self.time_orderd = time_orderd
         self.weatherconditions = weatherconditions
         self.road_traffic_density = road_traffic_density
         self.vehicle_condition = vehicle_condition
         self.type_of_vehicle = type_of_vehicle
         self.multiple_deliveries = multiple_deliveries
         self.city = city
-        self.order_day = order_day
-        self.order_month = order_month
-        self.order_year = order_year
-        self.hour_order = hour_order
-        self.min_order = min_order
-        self.avg_delivery_time_area = avg_delivery_time_area
-        self.traffic_weather_impact = traffic_weather_impact
-        self.vehicle_capacity_utilization = vehicle_capacity_utilization
+        self.temperature = temperature
+        self.traffic_index = traffic_index
+        self.time_taken = time_taken
 
     def get_data_as_data_frame(self):
         try:
             custom_data_input_dict = {
+                "ID": [self.ID],
                 "Delivery_person_Age": [self.delivery_person_age],
                 "Delivery_person_Ratings": [self.delivery_person_ratings],
+                "translogi_latitude": [self.translogi_latitude],
+                "translogi_longitude": [self.translogi_longitude],
                 "Delivery_location_latitude": [self.delivery_location_latitude],
                 "Delivery_location_longitude": [self.delivery_location_longitude],
+                "Order_Date": [self.order_date],
+                "Time_Orderd": [self.time_orderd],
                 "Weatherconditions": [self.weatherconditions],
                 "Road_traffic_density": [self.road_traffic_density],
                 "Vehicle_condition": [self.vehicle_condition],
                 "Type_of_vehicle": [self.type_of_vehicle],
                 "multiple_deliveries": [self.multiple_deliveries],
                 "City": [self.city],
-                "Order_day": [self.order_day],
-                "Order_month": [self.order_month],
-                "Order_year": [self.order_year],
-                "Hour_order": [self.hour_order],
-                "Min_order": [self.min_order],
-                "avg_delivery_time_area": [self.avg_delivery_time_area],
-                "traffic_weather_impact": [self.traffic_weather_impact],
-                "vehicle_capacity_utilization": [self.vehicle_capacity_utilization]
+                "Temperature": [self.temperature],
+                "Traffic_Index": [self.traffic_index],
+                "Time_taken": [self.time_taken]
             }
             return pd.DataFrame(custom_data_input_dict)
         except Exception as e:
             raise CustomException(e, sys)
-
+    
+    def custom_predicton(self):
+        try:
+            data = self.get_data_as_data_frame()
+            pipeline = PredictPipeline()
+            predictions = pipeline.predict(data)
+            return predictions
+        except Exception as e:
+            raise CustomException(e, sys)
 
 if __name__ == "__main__":
     try:
