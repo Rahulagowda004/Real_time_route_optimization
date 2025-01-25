@@ -1,106 +1,25 @@
 dataset(deprecated): https://www.kaggle.com/competitions/package-delivery-time/rules
 dataset(using): https://www.kaggle.com/datasets/gauravmalik26/food-delivery-dataset/code
 
-Here are the column names:
-
-1. Delivery_person_Age   : mean, ss
-2. Delivery_person_Ratings  : mean, ss
-3. Delivery_location_latitude  : ss
-4. Delivery_location_longitude  : ss
-5. Order_Date : ss
-6. Time_Orderd : most_frequent, ss
-7. Weatherconditions : most_frequent, ss
-8. Road_traffic_density : most_frequent, ss
-9. Vehicle_condition :  ss
-10. Type_of_vehicle : ss
-11. multiple_deliveries : most_frequent, ss
-12. Time_taken : most_frequent, ss
-13. Order_day : most_frequent, ss
-14. Order_month : most_frequent, ss
-15. Order_year :most_frequent, ss
-16. Hour_order : most_frequent, ss
-17. Min_order : most_frequent,ss
-18. city : most_frequent, ss
-
-Delivery_person_Age...
-Delivery_person_Ratings ...
-Time_Orderd  ...
-Weatherconditions ...
-Road_traffic_density ...
-multiple_deliveries ...
-Hour_order ...
-Min_order  ...
-city ...
-
 Training Random Forest...
 Fitting 3 folds for each of 9 candidates, totalling 27 fits
-Random Forest completed in 85.30 seconds.
+Random Forest completed in 41.12 seconds.
 Training Decision Tree...
 Fitting 3 folds for each of 2 candidates, totalling 6 fits
-Decision Tree completed in 0.66 seconds.
+Decision Tree completed in 0.64 seconds.
 Training Gradient Boosting...
 Fitting 3 folds for each of 4 candidates, totalling 12 fits
-Gradient Boosting completed in 9.95 seconds.
+Gradient Boosting completed in 11.99 seconds.
 Training Linear Regression...
-Linear Regression completed in 0.06 seconds.
+Linear Regression completed in 0.02 seconds.
 Training XGBRegressor...
 Fitting 3 folds for each of 4 candidates, totalling 12 fits
-XGBRegressor completed in 1.63 seconds.
+XGBRegressor completed in 0.92 seconds.
 Training CatBoosting Regressor...
 Fitting 3 folds for each of 4 candidates, totalling 12 fits
-CatBoosting Regressor completed in 3.05 seconds.
+CatBoosting Regressor completed in 3.57 seconds.
 Training AdaBoost Regressor...
 Fitting 3 folds for each of 4 candidates, totalling 12 fits
-AdaBoost Regressor completed in 17.89 seconds.
-Best Model: CatBoosting Regressor with R2 Score: 0.7904493407578194
-CatBoosting Regressor was not properly trained. Training now...
-Final R2 Score of Best Model: 0.7921256603566974
-
-Training Random Forest...
-Fitting 3 folds for each of 9 candidates, totalling 27 fits
-Random Forest completed in 94.52 seconds.
-Training Decision Tree...
-Fitting 3 folds for each of 2 candidates, totalling 6 fits
-Decision Tree completed in 1.69 seconds.
-Training Gradient Boosting...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-Gradient Boosting completed in 15.15 seconds.
-Training Linear Regression...
-Linear Regression completed in 0.06 seconds.
-Training XGBRegressor...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-XGBRegressor completed in 1.32 seconds.
-Training CatBoosting Regressor...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-CatBoosting Regressor completed in 4.55 seconds.
-Training AdaBoost Regressor...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-AdaBoost Regressor completed in 18.80 seconds.
-Best Model: CatBoosting Regressor with R2 Score: 0.815102614188359
-CatBoosting Regressor was not properly trained. Training now...
-Final R2 Score of Best Model: 0.8217498170683044
-
-
-Training Random Forest...
-Fitting 3 folds for each of 9 candidates, totalling 27 fits
-Random Forest completed in 93.53 seconds.
-Training Decision Tree...
-Fitting 3 folds for each of 2 candidates, totalling 6 fits
-Decision Tree completed in 1.66 seconds.
-Training Gradient Boosting...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-Gradient Boosting completed in 15.13 seconds.
-Training Linear Regression...
-Linear Regression completed in 0.06 seconds.
-Training XGBRegressor...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-XGBRegressor completed in 1.19 seconds.
-Training CatBoosting Regressor...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-CatBoosting Regressor completed in 4.43 seconds.
-Training AdaBoost Regressor...
-Fitting 3 folds for each of 4 candidates, totalling 12 fits
-AdaBoost Regressor completed in 19.27 seconds.
-Best Model: CatBoosting Regressor with R2 Score: 0.815102614188359
-CatBoosting Regressor was not properly trained. Training now...
-Final R2 Score of Best Model: 0.8217498170683044
+AdaBoost Regressor completed in 14.05 seconds.
+Best Model: Random Forest with R2 Score: 0.9060704845617257
+Final R2 Score of Best Model: 0.9060704845617257
