@@ -87,7 +87,6 @@ class PredictPipeline:
             print("Predictions: ", preds)
 
             preds_df = pd.DataFrame(preds, columns=['Predictions'])
-            preds_df.to_csv("artifacts/Prediction/Predictions.csv", index=False)
             return preds_df
         except Exception as e:
             raise CustomException(e, sys)
@@ -95,78 +94,46 @@ class PredictPipeline:
     def get_data_transformer_object(self):
         try:
             # Numerical features including time components
-            mean_features = [
-                "Delivery_person_Age",
-                "Delivery_person_Ratings",
-                "avg_delivery_time_area",
-                "vehicle_capacity_utilization",
-                "Order_day",
-                "Order_month",
-                "Order_year",
-                "Hour_order",
-                "Min_order",
-                "distance",
-            ]
+            mean_features = ['Delivery_person_Age', 'Delivery_person_Ratings', 'multiple_deliveries', 'Hour_order', 'Min_order']
+            ohe_categories = ['Road_traffic_density', 'Type_of_vehicle']
+            ordinal_categories = ['Road_traffic_density', 'Weatherconditions', 'Type_of_vehicle', 'City']
+            robust_features = ['translogi_latitude', 'translogi_longitude', 'Delivery_location_latitude', 'Delivery_location_longitude']
+            standardize_features = ['Temperature', 'Traffic_Index', 'Delivery_person_Age', 'Delivery_person_Ratings']
             
-            location_features = [
-                "translogi_latitude",
-                "translogi_longitude",
-                "Delivery_location_latitude",
-                "Delivery_location_longitude",
-                "distance"
-            ]
+            mean_pipeline = Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='mean')),
+                ('scaler', StandardScaler())
+            ])
             
-            # Only truly categorical features
-            mode_features = [
-                "multiple_deliveries",
-                "traffic_weather_impact"
-            ]
-            
-            cat_features = [
-                "Weatherconditions",
-                "Road_traffic_density",
-                "City",
-                "Type_of_vehicle"
-            ]
-            
-            ordinal_features = ["Vehicle_condition"]
+            cat_pipeline = Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='most_frequent')),
+                ('ohe', OneHotEncoder(handle_unknown='ignore'))
+            ])
 
-            mean_pipeline = Pipeline(
-                steps=[
-                    ("imputer", SimpleImputer(strategy="mean")),
-                    ("scaler", RobustScaler())
-                ]
-            )
+            ordinal_pipeline = Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='most_frequent')),
+                ('ordinal', OrdinalEncoder()),
+                ('scaler', RobustScaler())
+            ])
 
-            mode_pipeline = Pipeline(
-                steps=[
-                    ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("onehot", OneHotEncoder(drop='first', sparse_output=False, handle_unknown="ignore"))
-                ]
-            )
+            num_pipeline_standardize = Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='mean')),  
+                ('scaler', StandardScaler())  
+            ])
 
-            ordinal_pipeline = Pipeline(
-                steps=[
-                    ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("ordinal", OrdinalEncoder())
-                ]
-            )
-            
-            location_pipeline = Pipeline(
-                steps=[
-                    ("scaler", StandardScaler())
-                ]
-            )
-            
+            num_pipeline_robust = Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='mean')),
+                ('scaler', RobustScaler())
+            ])
+
             preprocessor = ColumnTransformer(
                 transformers=[
-                    ("num_pipeline", mean_pipeline, mean_features),
-                    ("cat_pipeline", mode_pipeline, cat_features),
-                    ("mode_pipeline", mode_pipeline, mode_features),
-                    ("ordinal_pipeline", ordinal_pipeline, ordinal_features),
-                    ("location_pipeline", location_pipeline, location_features)
-                ]
-            )
+                    ('num_mean', mean_pipeline, mean_features),
+                    ('num_standardize', num_pipeline_standardize, standardize_features),
+                    ('num_robust', num_pipeline_robust, robust_features),
+                    ('cat', cat_pipeline, ohe_categories),
+                    ('ordinal', ordinal_pipeline, ordinal_categories),
+                ])
 
             return preprocessor
         except Exception as e:
@@ -244,7 +211,7 @@ class CustomData:
 if __name__ == "__main__":
     try:
         pipeline = PredictPipeline()
-        df = pd.read_csv("artifacts/Prediction/Validation_set.csv")
+        df = pd.read_csv("artifacts/Data/dataset.csv")
         predictions = pipeline.predict(df)
         print(predictions)
     except Exception as e:
