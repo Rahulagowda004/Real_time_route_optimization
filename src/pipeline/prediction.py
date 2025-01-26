@@ -66,31 +66,7 @@ class Preprocess:
             return df
         except Exception as e:
             raise CustomException(e,sys)
-
-class PredictPipeline:
-    def __init__(self):
-        try:
-            self.model_path = os.path.join("artifacts/model", "best_model.pkl")
-            self.model = load_object(self.model_path)
-        except Exception as e:
-            raise CustomException(e, sys)
-    
-    def predict(self, dataframe):
-        try:
-            preprocessor = self.get_data_transformer_object()
-
-            preprocess = Preprocess()
-            dataframe = preprocess.clean_df(dataframe)
-            
-            data_scaled = preprocessor.fit_transform(dataframe)
-            preds = self.model.predict(data_scaled)
-            print("Predictions: ", preds)
-
-            preds_df = pd.DataFrame(preds, columns=['Predictions'])
-            return preds_df
-        except Exception as e:
-            raise CustomException(e, sys)
-
+        
     def get_data_transformer_object(self):
         try:
             # Numerical features including time components
@@ -139,6 +115,26 @@ class PredictPipeline:
         except Exception as e:
             raise CustomException(e, sys)
 
+class PredictPipeline:
+    def __init__(self):
+        try:
+            self.model_path = os.path.join("artifacts/model", "best_model.pkl")
+            self.model = load_object(self.model_path)
+        except Exception as e:
+            raise CustomException(e, sys)
+    
+    def predict(self, dataframe):
+        try:
+            preprocess = Preprocess()
+            dataframe = preprocess.clean_df(dataframe)
+            preprocessor = preprocess.get_data_transformer_object()
+            data_scaled = preprocessor.fit_transform(dataframe)
+            preds = self.model.predict(data_scaled)
+            print("Predictions: ", preds)
+            preds_df = pd.DataFrame(preds, columns=['Predictions'])
+            return preds_df
+        except Exception as e:
+            raise CustomException(e, sys)
 
 class CustomClass:
     def __init__(
