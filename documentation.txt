@@ -1,0 +1,217 @@
+Route Optimization Dashboard Documentation
+==========================================
+
+Project Overview
+---------------
+This is a React-based web application for route optimization and delivery management. The application includes features for displaying routes on a map, tracking delivery metrics, submitting orders, and visualizing delivery trends.
+
+File Structure
+-------------
+1. src/
+   ├── components/
+   │   ├── Map.tsx
+   │   ├── Metrics.tsx
+   │   ├── OrderForm.tsx
+   │   └── TrendChart.tsx
+   ├── services/
+   │   └── api.ts
+   ├── types.ts
+   ├── App.tsx
+   └── main.tsx
+
+Component Details
+----------------
+
+1. Map Component (Map.tsx)
+   - Uses react-leaflet for map visualization
+   - Displays delivery routes and markers
+   - Shows popups with order information
+   - Features:
+     * Interactive map with zoom controls
+     * Route visualization with polylines
+     * Markers for delivery points
+     * Order information in popups
+
+2. Metrics Component (Metrics.tsx)
+   - Displays key delivery performance indicators
+   - Uses @tremor/react for card components
+   - Metrics shown:
+     * Average delivery time
+     * Vehicle utilization
+     * Total cost
+     * Total deliveries
+   - Features:
+     * Responsive grid layout
+     * Visual indicators with icons
+     * Real-time metric updates
+
+3. OrderForm Component (OrderForm.tsx)
+   - Handles new delivery order submissions
+   - Integrates with prediction API
+   - Fields:
+     * Delivery address
+     * City
+     * Order date
+     * Time ordered
+     * Multiple deliveries option
+   - Features:
+     * Form validation
+     * Delivery time prediction
+     * Loading states
+     * Error handling
+     * Two-step submission process
+
+4. TrendChart Component (TrendChart.tsx)
+   - Visualizes delivery trends using recharts
+   - Displays:
+     * Delivery times
+     * Traffic conditions
+     * Temperature data
+   - Features:
+     * Interactive line chart
+     * Multiple data series
+     * Time-based x-axis
+     * Dual y-axes
+     * Tooltips and legend
+
+API Services (api.ts)
+--------------------
+Location: src/services/api.ts
+
+1. predictDeliveryTime
+   - Purpose: Predicts delivery time based on order details
+   - Input: PredictionRequest object
+   - Output: Predicted time in minutes
+   - Endpoint: ${API_BASE_URL}/predict
+   - Method: POST
+
+2. geocodeAddress
+   - Purpose: Converts addresses to coordinates
+   - Input: Address string
+   - Output: Latitude and longitude
+   - Endpoint: ${API_BASE_URL}/geocode
+   - Method: POST
+
+Type Definitions (types.ts)
+--------------------------
+Location: src/types.ts
+
+1. DeliveryOrder
+   - Properties:
+     * id: string
+     * address: string
+     * orderDate: string
+     * timeOrdered: string
+     * multipleDeliveries: boolean
+     * city: string
+     * status: 'pending' | 'in-progress' | 'delivered'
+     * predictedTime?: number
+
+2. PredictionRequest
+   - Properties:
+     * address: string
+     * city: string
+     * orderDate: string
+     * timeOrdered: string
+     * multipleDeliveries: boolean
+
+3. RoutePoint
+   - Properties:
+     * lat: number
+     * lng: number
+     * order?: DeliveryOrder
+
+4. DeliveryMetrics
+   - Properties:
+     * totalDeliveries: number
+     * averageTime: number
+     * vehicleUtilization: number
+     * totalCost: number
+
+Integration Instructions
+-----------------------
+1. API Setup
+   - Replace 'YOUR_API_ENDPOINT' in api.ts with actual endpoint
+   - Ensure API endpoints match expected formats:
+     * /predict - Returns { predicted_time: number }
+     * /geocode - Returns { lat: number, lng: number }
+
+2. Map Integration
+   - Uses OpenStreetMap tiles by default
+   - Ensure Leaflet CSS is included in index.html
+   - Map is responsive and fills container
+
+3. Prediction Model Integration
+   - Prediction happens before order submission
+   - All required fields must be filled
+   - Handles loading states and errors
+   - Shows predicted time before allowing submission
+
+Styling
+-------
+- Uses Tailwind CSS for styling
+- Responsive design for all components
+- Consistent color scheme:
+  * Primary: Blue (blue-500)
+  * Secondary: Gray (gray-100)
+  * Accent: Various colors for metrics
+- Custom styling for form inputs and buttons
+- Shadow and rounded corners for cards
+
+Error Handling
+-------------
+1. Form Validation
+   - Required field checks
+   - Date and time format validation
+   - Prediction must be completed before submission
+
+2. API Errors
+   - Graceful error handling for API calls
+   - User-friendly error messages
+   - Loading states during API calls
+
+3. Map Error Handling
+   - Fallback for failed tile loading
+   - Error handling for invalid coordinates
+
+Best Practices
+-------------
+1. TypeScript
+   - Strong typing for all components
+   - Interface definitions for data structures
+   - Type checking for API responses
+
+2. React
+   - Functional components
+   - React hooks for state management
+   - Props validation
+   - Controlled form inputs
+
+3. API
+   - Error handling
+   - Loading states
+   - Type-safe requests and responses
+
+4. Performance
+   - Optimized re-renders
+   - Lazy loading where appropriate
+   - Efficient state updates
+
+Future Improvements
+------------------
+1. Additional Features
+   - Real-time route updates
+   - Driver assignment
+   - Route optimization algorithms
+   - Weather integration
+
+2. Performance Optimizations
+   - Caching predictions
+   - Batch geocoding
+   - Route optimization caching
+
+3. UI Enhancements
+   - Dark mode support
+   - Additional chart types
+   - More detailed metrics
+   - Enhanced map features

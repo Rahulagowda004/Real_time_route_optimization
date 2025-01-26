@@ -194,8 +194,4 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
-
-
-documentation.txt
-
+*.sw?673e702bc27d55a13bb6648101a69130
