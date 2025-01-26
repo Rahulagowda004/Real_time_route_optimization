@@ -1,0 +1,13 @@
+Data_path:
+  raw_data: "r:/Real_time_route_optimization/artifacts/Data/dataset.csv"
+  train_data: "r:/Real_time_route_optimization/artifacts/Data/train.csv"
+  test_data: "r:/Real_time_route_optimization/artifacts/Data/test.csv"
+
+Model_path:
+  best_model: "r:/Real_time_route_optimization/artifacts/model/best_model.pkl"
+
+Preprocessor_path:
+  preprocessor: "r:/Real_time_route_optimization/artifacts/preprocessor/preprocessor.pkl"
+  avg_delivery_time: "r:/Real_time_route_optimization/artifacts/preprocessor/avg_delivery_time_area.pkl"
+  max_delivery: "r:/Real_time_route_optimization/artifacts/preprocessor/max_delivery_time_area_per_vehicle.pkl"
+  traffic_weather_impact: "r:/Real_time_route_optimization/artifacts/preprocessor/traffic_weather_impact.pkl"
