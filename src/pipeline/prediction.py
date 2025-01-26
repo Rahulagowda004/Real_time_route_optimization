@@ -127,8 +127,8 @@ class PredictPipeline:
         try:
             preprocess = Preprocess()
             dataframe = preprocess.clean_df(dataframe)
-            preprocessor = preprocess.get_data_transformer_object()
-            data_scaled = preprocessor.fit_transform(dataframe)
+            preprocessor = joblib.load('artifacts/preprocessor/preprocessor.pkl')
+            data_scaled = preprocessor.transform(dataframe)
             preds = self.model.predict(data_scaled)
             print("Predictions: ", preds)
             preds_df = pd.DataFrame(preds, columns=['Predictions'])
@@ -215,7 +215,7 @@ class CustomClass:
 if __name__ == "__main__":
     try:
         pipeline = PredictPipeline()
-        df = pd.read_csv("artifacts/Data/dataset.csv")
+        df = pd.read_csv("artifacts/prediction/prediction.csv")
         predictions = pipeline.predict(df)
         print(predictions)
     except Exception as e:

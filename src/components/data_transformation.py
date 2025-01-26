@@ -8,7 +8,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder,RobustScaler,MinMaxScaler,StandardScaler
-
+from src.components.custom_transformer import FilterOutBigValuesTransformer
 from src.utils.exception import CustomException
 from src.utils.logger import logging
 from src.utils.utils import save_object
