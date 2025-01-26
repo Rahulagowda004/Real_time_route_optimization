@@ -108,10 +108,42 @@ def get_traffic_density(traffic_index):
     else:
         return "Jam"
     
-def get_temperature(latitude, longitude):
-    api = os.getenv("OPENWEATHER_API_KEY")
-    return 25.0
-    
-def get_weatherconditions(latitude, longitude):
-    api = os.getenv("OPENWEATHER_API_KEY")
-    return "Sunny"
+def get_weather(city):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={os.getenv("OPENWEATHER_API_KEY")}"
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json()
+
+        # Extract temperature in Kelvin and convert to Celsius
+        temperature_kelvin = data['main']['temp']
+        Temperature = temperature_kelvin - 273.15
+
+        # Map weather condition codes to conditions
+        weather_mapping = {
+            "Clear": "Sunny",
+            "Thunderstorm": "Stormy",
+            "Dust": "Sandstorms",
+            "Haze": "Sandstorms",
+            "Clouds": "Cloudy",
+            "Mist": "Fog",
+            "Fog": "Fog",
+            "Smoke": "Fog",
+            "Drizzle": "Cloudy",
+            "Rain": "Cloudy",
+            "Squall": "Windy",
+            "Tornado": "Windy",
+            "Ash": "Sandstorms",
+            "Sand": "Sandstorms",
+        }
+
+        # Extract main weather description
+        weather_main = data['weather'][0]['main']
+
+        # Get mapped condition or fallback to default
+        weathercondition = weather_mapping.get(weather_main, weather_main)
+
+        return Temperature, weathercondition
+    else:
+        response.raise_for_status()
