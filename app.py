@@ -24,35 +24,36 @@ def predict_delivery_time():
         delivery_location = geolocator.geocode(data['address'])
         logging.info(f"delivery_location: {delivery_location}")
         
-        if not pickup_location or not delivery_location:
-            return jsonify({'error': 'Invalid address'}), 400
+        # if not pickup_location or not delivery_location:
+        #     return jsonify({'error': 'Invalid address'}), 400
 
-        # Current date and time
-        now = datetime.now()
+        # # Current date and time
+        # now = datetime.now()
         
-        traffic_index = get_traffic_index(latitude=delivery_location.latitude, longitude=delivery_location.longitude)
-        logging.info(f"Traffic index: {traffic_index}")
-        pipeline = PredictPipeline(
-            ID="0x4607",
-            delivery_person_age=37.0,
-            delivery_person_ratings=4.9,
-            translogi_latitude=pickup_location.latitude,
-            translogi_longitude=pickup_location.longitude,
-            delivery_location_latitude=delivery_location.latitude,
-            delivery_location_longitude=delivery_location.longitude,
-            order_date=now.strftime("%d-%m-%y"),
-            time_orderd=now.strftime("%H:%M:%S"),
-            road_traffic_density=get_traffic_density(traffic_index),
-            weatherconditions=get_weatherconditions(latitude=delivery_location.latitude, longitude=delivery_location.longitude),
-            vehicle_condition=2,
-            type_of_vehicle="motorcycle",
-            multiple_deliveries=0.0,
-            city=data['city'],
-            temperature=get_temperature(latitude=delivery_location.latitude, longitude=delivery_location.longitude),
-            traffic_index=traffic_index
-        )
-        logging.info(f"pipeline: {pipeline}")
-        predicted_time = pipeline.predict()
+        # traffic_index = get_traffic_index(latitude=delivery_location.latitude, longitude=delivery_location.longitude)
+        # logging.info(f"Traffic index: {traffic_index}")
+        # pipeline = PredictPipeline(
+        #     ID="0x4607",
+        #     delivery_person_age=37.0,
+        #     delivery_person_ratings=4.9,
+        #     translogi_latitude=pickup_location.latitude,
+        #     translogi_longitude=pickup_location.longitude,
+        #     delivery_location_latitude=delivery_location.latitude,
+        #     delivery_location_longitude=delivery_location.longitude,
+        #     order_date=now.strftime("%d-%m-%y"),
+        #     time_orderd=now.strftime("%H:%M:%S"),
+        #     road_traffic_density=get_traffic_density(traffic_index),
+        #     weatherconditions=get_weatherconditions(latitude=delivery_location.latitude, longitude=delivery_location.longitude),
+        #     vehicle_condition=2,
+        #     type_of_vehicle="motorcycle",
+        #     multiple_deliveries=0.0,
+        #     city=data['city'],
+        #     temperature=get_temperature(latitude=delivery_location.latitude, longitude=delivery_location.longitude),
+        #     traffic_index=traffic_index
+        # )
+        # logging.info(f"pipeline: {pipeline}")
+        # predicted_time = pipeline.predict()
+        predicted_time = 24.0
         logging.info(f"Predicted time: {predicted_time}")
         return jsonify({
             'predicted_time': round(float(predicted_time), 2)
