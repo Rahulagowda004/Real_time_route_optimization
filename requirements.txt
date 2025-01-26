@@ -13,3 +13,4 @@ flask-cors
 python-dotenv
 geopy==2.4.1
 geopyflask
+opencage

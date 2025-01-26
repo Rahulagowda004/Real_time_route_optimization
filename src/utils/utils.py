@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from sklearn.metrics import r2_score
 from sklearn.model_selection import GridSearchCV
 from src.utils.exception import CustomException
+from opencage.geocoder import OpenCageGeocode
 
 load_dotenv()
 
@@ -60,6 +61,18 @@ def load_object(file_path):
 
     except Exception as e:
         raise CustomException(e, sys)
+    
+def get_coordinates(address):
+    result = geocoder.geocode(address)
+    
+    if result:
+        lat = result[0]['geometry']['lat']
+        lng = result[0]['geometry']['lng']
+        print(f"Latitude: {lat}, Longitude: {lng}")
+        return lat, lng
+    else:
+        print("Address not found")
+        return None, None
     
 def get_traffic_index(api_key, latitude, longitude):
     url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
