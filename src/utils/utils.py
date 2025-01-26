@@ -62,19 +62,22 @@ def load_object(file_path):
     except Exception as e:
         raise CustomException(e, sys)
     
+geocoder = OpenCageGeocode(os.getenv("OPENCAGE_API_KEY"))
+
 def get_coordinates(address):
     result = geocoder.geocode(address)
     
     if result:
+        city = result[0]['components']['_normalized_city']
         lat = result[0]['geometry']['lat']
         lng = result[0]['geometry']['lng']
         print(f"Latitude: {lat}, Longitude: {lng}")
-        return lat, lng
+        return lat, lng, city
     else:
         print("Address not found")
-        return None, None
+        return None, None, None
     
-def get_traffic_index(api_key, latitude, longitude):
+def get_traffic_index( latitude, longitude):
     url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
     params = {
         'key': os.getenv("TOMTOM_API_KEY"),
@@ -96,7 +99,6 @@ def get_traffic_index(api_key, latitude, longitude):
     else:
         print(f"Error: {response.status_code}, {response.text}")
         return 2.0
-    return 2.0
 
 def get_traffic_density(traffic_index):
     if traffic_index <= 1.0:
@@ -109,7 +111,8 @@ def get_traffic_density(traffic_index):
         return "Jam"
     
 def get_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={os.getenv("OPENWEATHER_API_KEY")}"
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
 
     response = requests.get(url)
 
