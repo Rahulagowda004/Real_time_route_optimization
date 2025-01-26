@@ -63,24 +63,110 @@ class Preprocess:
             raise CustomException(e,sys)
 
 class PredictPipeline:
-    def __init__(self):
+    def __init__(self,
+                ID: str,
+                delivery_person_age: float,
+                delivery_person_ratings: float,
+                translogi_latitude: float,
+                translogi_longitude: float,
+                delivery_location_latitude: float,
+                delivery_location_longitude: float,
+                order_date: str,
+                time_orderd: str,
+                weatherconditions: str,
+                road_traffic_density: str,
+                vehicle_condition: int,
+                type_of_vehicle: str,
+                multiple_deliveries: float,
+                city: str,
+                temperature: float,
+                traffic_index: float
+                ):
         try:
+            self.ID = ID
+            self.delivery_person_age = delivery_person_age
+            self.delivery_person_ratings = delivery_person_ratings
+            self.translogi_latitude = translogi_latitude
+            self.translogi_longitude = translogi_longitude
+            self.delivery_location_latitude = delivery_location_latitude
+            self.delivery_location_longitude = delivery_location_longitude
+            self.order_date = order_date
+            self.time_orderd = time_orderd
+            self.weatherconditions = weatherconditions
+            self.road_traffic_density = road_traffic_density
+            self.vehicle_condition = vehicle_condition
+            self.type_of_vehicle = type_of_vehicle
+            self.multiple_deliveries = multiple_deliveries
+            self.city = city
+            self.temperature = temperature
+            self.traffic_index = traffic_index
             self.model_path = os.path.join("artifacts/model", "best_model.pkl")
             self.preprocessor_path = os.path.join("artifacts/preprocessor", "preprocessor.pkl")
             self.model = load_object(self.model_path)
+            self.preprocessor = load_object(self.preprocessor_path)
         except Exception as e:
             raise CustomException(e, sys)
     
-    def predict(self, dataframe):
+    def get_data_as_dataframe(self):
+        try:
+            custom_data_input_dict = {
+                'ID': [self.ID],
+                'Delivery_person_Age': [self.delivery_person_age],
+                'Delivery_person_Ratings': [self.delivery_person_ratings],
+                'translogi_latitude': [self.translogi_latitude],
+                'translogi_longitude': [self.translogi_longitude],
+                'Delivery_location_latitude': [self.delivery_location_latitude],
+                'Delivery_location_longitude': [self.delivery_location_longitude],
+                'Order_Date': [self.order_date],
+                'Time_Orderd': [self.time_orderd],
+                'Weatherconditions': [self.weatherconditions],
+                'Road_traffic_density': [self.road_traffic_density],
+                'Vehicle_condition': [self.vehicle_condition],
+                'Type_of_vehicle': [self.type_of_vehicle],
+                'multiple_deliveries': [self.multiple_deliveries],
+                'City': [self.city],
+                'Temperature': [self.temperature],
+                'Traffic_Index': [self.traffic_index]
+            }
+            return pd.DataFrame(custom_data_input_dict)
+        except Exception as e:
+            raise CustomException(e, sys)
+    
+    def predict(self):
         try:
             preprocess = Preprocess()
+            dataframe = self.get_data_as_dataframe()
             dataframe = preprocess.clean_df(dataframe)
-            preprocessor = joblib.load(self.preprocessor_path)
-            data_scaled = preprocessor.transform(dataframe)
+            data_scaled = self.preprocessor.transform(dataframe)
             predicted_time = self.model.predict(data_scaled)
             return predicted_time
         except Exception as e:
             raise CustomException(e, sys)
+        
+if __name__ == "__main__":
+    try:
+        pipeline = PredictPipeline(
+            ID="0x4607",
+            delivery_person_age=37.0,
+            delivery_person_ratings=4.9,
+            translogi_latitude=22.745049,
+            translogi_longitude=75.892471,
+            delivery_location_latitude=22.765049,
+            delivery_location_longitude=75.912471,
+            order_date="2022-03-19",
+            time_orderd="11:30:00",
+            road_traffic_density="High",
+            weatherconditions="Sunny",
+            vehicle_condition=2,
+            type_of_vehicle="motorcycle",
+            multiple_deliveries=0.0,
+            city="Urban",
+            temperature=29.0,
+            traffic_index=1.2
+        )
+        print(pipeline.predict())
+    except Exception as e:
+        raise CustomException(e, sys)
         
 # if __name__ == "__main__":
 #     try:
@@ -90,33 +176,3 @@ class PredictPipeline:
 #         print(Time_taken)
 #     except Exception as e:
 #         print(f"An error occurred: {e}")
-
-if __name__ == "__main__":
-    try:
-        # Define the input data as a dictionary
-        input_data = {
-            "ID": ["0x4607"],
-            "Delivery_person_Age": [37.0],
-            "Delivery_person_Ratings": [4.9],
-            "translogi_latitude": [22.745049],
-            "translogi_longitude": [75.892471],
-            "Delivery_location_latitude": [22.765049],
-            "Delivery_location_longitude": [75.912471],
-            "Order_Date": ["2022-03-19"],
-            "Time_Orderd": ["11:30:00"],
-            "Road_traffic_density": ["High"],
-            "Weatherconditions": ["Sunny"],
-            "Vehicle_condition": [2],
-            "Type_of_vehicle": ["motorcycle"],
-            "multiple_deliveries": [0.0],
-            "City": ["Urban"],
-            "Temperature": [29.0],
-            "Traffic_Index": [1.2]
-        }
-
-        input_df = pd.DataFrame(input_data)
-        pipeline = PredictPipeline()
-        predicted_time = pipeline.predict(input_df)
-        print(f"Predicted Time Taken: {predicted_time}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
