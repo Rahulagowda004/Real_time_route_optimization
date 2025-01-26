@@ -134,11 +134,48 @@ class PredictPipeline:
         except Exception as e:
             raise CustomException(e, sys)
         
+# if __name__ == "__main__":
+#     try:
+#         pipeline = PredictPipeline()
+#         df = pd.read_csv("artifacts/prediction/prediction.csv")
+#         Time_taken = pipeline.predict(df)
+#         print(Time_taken)
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
+
 if __name__ == "__main__":
     try:
+        # Define the input data as a dictionary
+        input_data = {
+            "ID": ["0x4607"],
+            "Delivery_person_Age": [37.0],
+            "Delivery_person_Ratings": [4.9],
+            "translogi_latitude": [22.745049],
+            "translogi_longitude": [75.892471],
+            "Delivery_location_latitude": [22.765049],
+            "Delivery_location_longitude": [75.912471],
+            "Order_Date": ["2022-03-19"],
+            "Time_Orderd": ["11:30:00"],
+            "Road_traffic_density": ["High "],
+            "Weatherconditions": [" Sunny"],
+            "Vehicle_condition": [2],
+            "Type_of_vehicle": ["motorcycle "],
+            "multiple_deliveries": [0.0],
+            "City": ["Urban "],
+            "Temperature": [29.0],
+            "Traffic_Index": [1.2]
+        }
+
+        # Convert the dictionary to a DataFrame
+        input_df = pd.DataFrame(input_data)
+
+        # Instantiate the prediction pipeline
         pipeline = PredictPipeline()
-        df = pd.read_csv("artifacts/prediction/prediction.csv")
-        Time_taken = pipeline.predict(df)
-        print(Time_taken)
+
+        # Predict the delivery time
+        predicted_time = pipeline.predict(input_df)
+
+        # Print the result
+        print(f"Predicted Time Taken: {predicted_time}")
     except Exception as e:
         print(f"An error occurred: {e}")
