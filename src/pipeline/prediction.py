@@ -3,10 +3,6 @@ import os
 import joblib
 import pandas as pd
 from geopy.distance import geodesic
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, RobustScaler, StandardScaler
-from sklearn.compose import ColumnTransformer
 from src.utils.exception import CustomException
 from src.utils.utils import load_object
 
@@ -17,7 +13,6 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 
 class Preprocess:
     def __init__(self):
-        # Load pre-trained preprocessor objects
         try:
             self.avg_delivery_time_area = joblib.load('artifacts/preprocessor/avg_delivery_time_area.pkl')
             self.traffic_weather_impact = joblib.load('artifacts/preprocessor/traffic_weather_impact.pkl')
@@ -52,7 +47,7 @@ class Preprocess:
                 except Exception as e:
                     raise CustomException(e, sys)
             
-            df.drop(['ID'], axis=1, inplace=True)  # Drop irrelevant column
+            df.drop(['ID'], axis=1, inplace=True)
             df['Order_Date'] = pd.to_datetime(df['Order_Date'])
             df['Order_day'] = df['Order_Date'].dt.day
             df['Order_month'] = df['Order_Date'].dt.month
@@ -66,59 +61,12 @@ class Preprocess:
             return df
         except Exception as e:
             raise CustomException(e,sys)
-        
-    def get_data_transformer_object(self):
-        try:
-            # Numerical features including time components
-            mean_features = ['Delivery_person_Age', 'Delivery_person_Ratings', 'multiple_deliveries', 'Hour_order', 'Min_order']
-            ohe_categories = ['Road_traffic_density', 'Type_of_vehicle']
-            ordinal_categories = ['Road_traffic_density', 'Weatherconditions', 'Type_of_vehicle', 'City']
-            robust_features = ['translogi_latitude', 'translogi_longitude', 'Delivery_location_latitude', 'Delivery_location_longitude']
-            standardize_features = ['Temperature', 'Traffic_Index', 'Delivery_person_Age', 'Delivery_person_Ratings']
-            
-            mean_pipeline = Pipeline(steps=[
-                ('imputer', SimpleImputer(strategy='mean')),
-                ('scaler', StandardScaler())
-            ])
-            
-            cat_pipeline = Pipeline(steps=[
-                ('imputer', SimpleImputer(strategy='most_frequent')),
-                ('ohe', OneHotEncoder(handle_unknown='ignore'))
-            ])
-
-            ordinal_pipeline = Pipeline(steps=[
-                ('imputer', SimpleImputer(strategy='most_frequent')),
-                ('ordinal', OrdinalEncoder()),
-                ('scaler', RobustScaler())
-            ])
-
-            num_pipeline_standardize = Pipeline(steps=[
-                ('imputer', SimpleImputer(strategy='mean')),  
-                ('scaler', StandardScaler())  
-            ])
-
-            num_pipeline_robust = Pipeline(steps=[
-                ('imputer', SimpleImputer(strategy='mean')),
-                ('scaler', RobustScaler())
-            ])
-
-            preprocessor = ColumnTransformer(
-                transformers=[
-                    ('num_mean', mean_pipeline, mean_features),
-                    ('num_standardize', num_pipeline_standardize, standardize_features),
-                    ('num_robust', num_pipeline_robust, robust_features),
-                    ('cat', cat_pipeline, ohe_categories),
-                    ('ordinal', ordinal_pipeline, ordinal_categories),
-                ])
-
-            return preprocessor
-        except Exception as e:
-            raise CustomException(e, sys)
 
 class PredictPipeline:
     def __init__(self):
         try:
             self.model_path = os.path.join("artifacts/model", "best_model.pkl")
+            self.preprocessor_path = os.path.join("artifacts/preprocessor", "preprocessor.pkl")
             self.model = load_object(self.model_path)
         except Exception as e:
             raise CustomException(e, sys)
@@ -127,7 +75,7 @@ class PredictPipeline:
         try:
             preprocess = Preprocess()
             dataframe = preprocess.clean_df(dataframe)
-            preprocessor = joblib.load('artifacts/preprocessor/preprocessor.pkl')
+            preprocessor = joblib.load(self.preprocessor_path)
             data_scaled = preprocessor.transform(dataframe)
             predicted_time = self.model.predict(data_scaled)
             return predicted_time
@@ -156,26 +104,19 @@ if __name__ == "__main__":
             "Delivery_location_longitude": [75.912471],
             "Order_Date": ["2022-03-19"],
             "Time_Orderd": ["11:30:00"],
-            "Road_traffic_density": ["High "],
-            "Weatherconditions": [" Sunny"],
+            "Road_traffic_density": ["High"],
+            "Weatherconditions": ["Sunny"],
             "Vehicle_condition": [2],
-            "Type_of_vehicle": ["motorcycle "],
+            "Type_of_vehicle": ["motorcycle"],
             "multiple_deliveries": [0.0],
-            "City": ["Urban "],
+            "City": ["Urban"],
             "Temperature": [29.0],
             "Traffic_Index": [1.2]
         }
 
-        # Convert the dictionary to a DataFrame
         input_df = pd.DataFrame(input_data)
-
-        # Instantiate the prediction pipeline
         pipeline = PredictPipeline()
-
-        # Predict the delivery time
         predicted_time = pipeline.predict(input_df)
-
-        # Print the result
         print(f"Predicted Time Taken: {predicted_time}")
     except Exception as e:
         print(f"An error occurred: {e}")
