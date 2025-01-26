@@ -1,39 +1,15 @@
-# from flask import Flask, request, jsonify
-# from flask_cors import CORS
-
-# app = Flask(__name__)
-# CORS(app)
-
-# @app.route('/predict', methods=['POST'])
-# def predict():
-#     try:
-#         # Extract JSON data sent from the frontend
-#         data = request.json
-
-#         # Respond with a success message
-#         return jsonify({
-#             'message': 'Data received successfully',
-#             'received_data': data
-#         })
-#     except Exception as e:
-#         print("Error:", str(e))
-#         return jsonify({'error': str(e)}), 500
-
-# if __name__ == '__main__':
-#     app.run(debug=True, port=5000)
 from flask_cors import CORS
 from datetime import datetime
 from geopy.geocoders import Nominatim
 from flask import Flask, request, jsonify
 from src.pipeline.prediction import PredictPipeline
-from src.utils.utils import (get_temperature,get_weatherconditions,get_traffic_density,get_traffic_index)
+from src.utils.utils import (get_temperature, get_weatherconditions, get_traffic_density, get_traffic_index)
 
 app = Flask(__name__)
 CORS(app)
 
 geolocator = Nominatim(user_agent="delivery_app")
 
-# Add this near your other routes
 @app.route('/')
 def home():
     return jsonify({
@@ -47,7 +23,9 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict_delivery_time():
     try:
+        # Log the received data
         data = request.json
+        print("Received data from frontend (predict):", data)
         
         # Geocode pickup and delivery addresses
         pickup_location = geolocator.geocode(data['pickupAddress'])
@@ -78,13 +56,15 @@ def predict_delivery_time():
             city="Urban",
             temperature=get_temperature(latitude=delivery_location.latitude, longitude=delivery_location.longitude),
             traffic_index=traffic_index
-            )
+        )
         predicted_time = pipeline.predict()
+        print("Predicted time:", predicted_time)
         return jsonify({
             'predicted_time': round(float(predicted_time), 2)
         })
     
     except Exception as e:
+        print("Error in /predict:", str(e))
         return jsonify({
             'error': str(e)
         }), 500
@@ -92,9 +72,11 @@ def predict_delivery_time():
 @app.route('/geocode', methods=['POST'])
 def geocode_address():
     try:
+        # Log the received data
         data = request.json
-        address = data['address']
+        print("Received data from frontend (geocode):", data)
         
+        address = data['address']
         location = geolocator.geocode(address)
         if location:
             return jsonify({
@@ -105,6 +87,7 @@ def geocode_address():
             return jsonify({'error': 'Address not found'}), 404
             
     except Exception as e:
+        print("Error in /geocode:", str(e))
         return jsonify({
             'error': str(e)
         }), 500
