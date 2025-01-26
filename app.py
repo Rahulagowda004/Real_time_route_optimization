@@ -10,6 +10,17 @@ CORS(app)
 
 geolocator = Nominatim(user_agent="delivery_app")
 
+# Add this near your other routes
+@app.route('/')
+def home():
+    return jsonify({
+        'message': 'Server is running',
+        'endpoints': {
+            '/predict': 'POST - Predict delivery time',
+            '/geocode': 'POST - Geocode address'
+        }
+    })
+
 @app.route('/predict', methods=['POST'])
 def predict_delivery_time():
     try:
