@@ -1,13 +1,16 @@
 import os
 import sys
 import time
+import pickle
+import requests
 import numpy as np 
 import pandas as pd
-import pickle
+from dotenv import load_dotenv
 from sklearn.metrics import r2_score
 from sklearn.model_selection import GridSearchCV
-
 from src.utils.exception import CustomException
+
+load_dotenv()
 
 def save_object(file_path, obj):
     try:
@@ -57,3 +60,44 @@ def load_object(file_path):
 
     except Exception as e:
         raise CustomException(e, sys)
+    
+def get_traffic_index(api_key, latitude, longitude):
+    url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
+    params = {
+        'key': api_key,
+        'point': f"{latitude},{longitude}"
+    }
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        try:
+            flow_data = data['flowSegmentData']
+            current_travel_time = flow_data['currentTravelTime']
+            free_flow_travel_time = flow_data['freeFlowTravelTime']
+            
+            traffic_index = current_travel_time / free_flow_travel_time
+            return float(traffic_index)
+        except KeyError:
+            print("KeyError: Required data missing in response.")
+            return 2.0
+    else:
+        print(f"Error: {response.status_code}, {response.text}")
+        return 2.0
+
+def get_traffic_density(traffic_index):
+    if traffic_index <= 1.0:
+        return "Low"
+    elif 1.1 <= traffic_index <= 2.0:
+        return "Medium"
+    elif 2.1 <= traffic_index <= 3.0:
+        return "High"
+    else:
+        return "Jam"
+    
+def get_temperature(latitude, longitude):
+    api = os.getenv("OPENWEATHER_API_KEY")
+    return 25.0
+    
+def get_weatherconditions(latitude, longitude):
+    api = os.getenv("OPENWEATHER_API_KEY")
+    return "Sunny"
