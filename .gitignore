@@ -199,9 +199,3 @@ dist-ssr
 
 documentation.txt
 
-src/components/Map.tsx
-src/components/Metrics.tsx
-src/components/OrderForm.tsx
-src/components/TrendChart.tsx
-src/services/api.ts
-src/pipeline/prediction.py
