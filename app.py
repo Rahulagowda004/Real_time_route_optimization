@@ -1,3 +1,26 @@
+# from flask import Flask, request, jsonify
+# from flask_cors import CORS
+
+# app = Flask(__name__)
+# CORS(app)
+
+# @app.route('/predict', methods=['POST'])
+# def predict():
+#     try:
+#         # Extract JSON data sent from the frontend
+#         data = request.json
+
+#         # Respond with a success message
+#         return jsonify({
+#             'message': 'Data received successfully',
+#             'received_data': data
+#         })
+#     except Exception as e:
+#         print("Error:", str(e))
+#         return jsonify({'error': str(e)}), 500
+
+# if __name__ == '__main__':
+#     app.run(debug=True, port=5000)
 from flask_cors import CORS
 from datetime import datetime
 from geopy.geocoders import Nominatim
