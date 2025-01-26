@@ -197,14 +197,8 @@ dist-ssr
 *.sw?
 
 
-
 documentation.txt
 
-src/App.tsx
-src/index.css
-src/main.tsx
-src/types.ts
-src/vite-env.d.ts
 src/components/Map.tsx
 src/components/Metrics.tsx
 src/components/OrderForm.tsx
