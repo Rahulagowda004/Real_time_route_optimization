@@ -61,7 +61,7 @@ def predict_delivery_time():
         predicted_time = pipeline.predict()
         logging.info(f"predicted_time: {predicted_time}")
         return jsonify({
-            'predicted_time': round(float(predicted_time), 2)
+            'predicted_time': float(predicted_time)
         })
     
     except Exception as e:
