@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import uuid
+import sys
 from datetime import datetime
 from src.pipeline.prediction import PredictPipeline
 from src.utils.logger import logging
-from src.utils.utils import (get_traffic_density, get_traffic_index, get_coordinates, get_weather, data_into_db)
+import mysql
+from src.utils.utils import (get_traffic_density, get_traffic_index,get_coordinates,get_weather,data_into_db)
 
 app = Flask(__name__)
 CORS(app)
@@ -38,8 +40,8 @@ def predict_delivery_time():
         data = request.json
         logging.info(f"Received data from frontend (predict): {data}")
         
-        global delivery_location_latitude, delivery_location_longitude,pickup_location_latitude, pickup_location_longitude
-
+        global delivery_location_latitude, delivery_location_longitude
+        
         pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
         logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
         delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
@@ -91,7 +93,7 @@ def predict_delivery_time():
         })
 
     except Exception as e:
-        print("Error in /predict:", str(e))
+        print(CustomException(e,sys))
         return jsonify({
             'error': str(e)
         }), 500
@@ -104,8 +106,7 @@ def geocode_address():
         
         global latitude, longitude
         
-        address = data['address']
-        latitude, longitude = delivery_location_latitude, delivery_location_longitude
+        latitude, longitude,city = delivery_location_latitude, delivery_location_longitude, city
         logging.info(f"geoadress latitude: {latitude}, longitude: {longitude}")
         if latitude and longitude:
             return jsonify({
@@ -116,7 +117,7 @@ def geocode_address():
             return jsonify({'error': 'Address not found'}), 404
             
     except Exception as e:
-        print("Error in /geocode:", str(e))
+        print(CustomException(e,sys))
         return jsonify({
             'error': str(e)
         }), 500
