@@ -3,7 +3,7 @@ export interface DeliveryOrder {
   pickupAddress: string;
   address: string;
   city: string;
-  status: 'pending' | 'in-progress' | 'delivered';
+  status: "pending" | "in-progress" | "delivered";
   predictedTime?: number;
 }
 
@@ -23,5 +23,4 @@ export interface DeliveryMetrics {
   totalDeliveries: number;
   averageTime: number;
   vehicleUtilization: number;
-  totalCost: number;
 }

@@ -17,7 +17,6 @@ const initialMetrics: DeliveryMetrics = {
   totalDeliveries: 156,
   averageTime: 28,
   vehicleUtilization: 85,
-  totalCost: 1234.56,
 };
 
 interface TrendDataPoint {

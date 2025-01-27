@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from src.pipeline.prediction import PredictPipeline
 from src.utils.logger import logging
-from src.utils.utils import (get_traffic_density, get_traffic_index, get_coordinates, get_weather, data_into_db)
+from src.utils.utils import (get_traffic_density, get_traffic_index, get_coordinates, get_weather, data_into_db,get_db_connection)
 
 app = Flask(__name__)
 CORS(app)
@@ -17,22 +17,33 @@ def predict_delivery_time():
         
         global delivery_location_latitude, delivery_location_longitude,pickup_location_latitude, pickup_location_longitude
 
-        pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
-        logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
-        delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
-        logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
+        # pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
+        # logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
+        # delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
+        # logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
         
-        temperature,weathercondition = get_weather(City)
+        # temperature,weathercondition = get_weather(City)
         
-        if data['city'] == "Metropolitan":
-            data['city'] = "Metropolitian"
-        else:
-            None
+        # if data['city'] == "Metropolitan":
+        #     data['city'] = "Metropolitian"
+        # else:
+        #     None
             
         
-        if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
-            return jsonify({'error': 'Invalid address'}), 400
-
+        # if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
+        #     return jsonify({'error': 'Invalid address'}), 400
+        
+        pickup_location_latitude = 22.745049
+        pickup_location_longitude = 75.892471
+        delivery_location_latitude = 22.765049
+        delivery_location_longitude = 75.912471
+        traffic_index = 1.2
+        weathercondition = "Sunny"
+        temperature = 29.0
+        now = datetime.now()
+        data = {
+            "city": "Urban"
+        }
         now = datetime.now()
         
         traffic_index = get_traffic_index(latitude=delivery_location_latitude, longitude=delivery_location_longitude)
@@ -101,14 +112,34 @@ def geocode_address():
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
     try:
-        # Get data from your database or calculate metrics
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM deliveries")
+        total_deliveries = cursor.fetchone()[0]
+
+        cursor.execute("SELECT Time_taken FROM deliveries")
+        delivery_times = [row[0] for row in cursor.fetchall()]
+        avg_time = round(mean(delivery_times), 2) if delivery_times else 0
+
+        cursor.execute("""
+            SELECT COUNT(DISTINCT vehicle_id) 
+            FROM deliveries 
+            WHERE DATE(order_date) = CURRENT_DATE
+        """)
+        active_vehicles = cursor.fetchone()[0]
+        total_vehicles = 100
+        utilization = round((active_vehicles / total_vehicles) * 100, 2)
+
         metrics = {
-            'totalDeliveries': 2154,
-            'averageTime': 26,
-            'vehicleUtilization': 90,
-            'totalCost': 150.75,
+            'totalDeliveries': total_deliveries,
+            'averageTime': avg_time,
+            'vehicleUtilization': utilization
         }
+
+        conn.close()
         return jsonify(metrics)
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
