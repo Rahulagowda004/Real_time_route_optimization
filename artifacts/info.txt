@@ -1,4 +1,3 @@
-dataset(deprecated): https://www.kaggle.com/competitions/package-delivery-time/rules
 dataset(using): https://www.kaggle.com/datasets/gauravmalik26/food-delivery-dataset/code
 
 Training Random Forest...
