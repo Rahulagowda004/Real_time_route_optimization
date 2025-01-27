@@ -38,21 +38,27 @@ def predict_delivery_time():
         data = request.json
         logging.info(f"Received data from frontend (predict): {data}")
         
-        global delivery_location_latitude, delivery_location_longitude
+        global delivery_location_latitude, delivery_location_longitude,pickup_location_latitude, pickup_location_longitude
+
+        pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
+        logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
+        delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
+        logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
         
+        temperature,weathercondition = get_weather(City)
+        
+        if data['city'] == "Metropolitan":
+            data['city'] = "Metropolitian"
+        else:
+            None
+            
+        
+        if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
+            return jsonify({'error': 'Invalid address'}), 400
+
         now = datetime.now()
         
-        pickup_location_latitude = 22.745049
-        pickup_location_longitude = 75.892471
-        delivery_location_latitude = 22.765049
-        delivery_location_longitude = 75.912471
-        traffic_index = 1.2
-        weathercondition = "Sunny"
-        temperature = 29.0
-        now = datetime.now()
-        data = {
-            "city": "Urban"
-        }
+        traffic_index = get_traffic_index(latitude=delivery_location_latitude, longitude=delivery_location_longitude)
         
         pipeline_params = {
             'ID': int(uuid.uuid4().hex[:4], 16),
@@ -118,8 +124,8 @@ def geocode_address():
 @app.route('/routes', methods=['GET'])
 def get_routes():
     routes = [
-        {'lat': 22.74, 'lng': 75.89},
-        {'lat': 22.76, 'lng': 75.91}
+        {'lat': pickup_location_latitude, 'lng': pickup_location_longitude},
+        {'lat': delivery_location_latitude, 'lng': delivery_location_longitude}
     ]
     return jsonify(routes)
 
