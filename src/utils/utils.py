@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from sklearn.metrics import r2_score
 from opencage.geocoder import OpenCageGeocode
 from src.utils.exception import CustomException
+from src.utils.logger import logging
 from sklearn.model_selection import GridSearchCV
 
 load_dotenv()
@@ -187,12 +188,12 @@ def data_into_db(data):
         ))
 
         connection.commit()
-        print("Record inserted successfully!")
+        logging("Record inserted successfully!")
 
     except mysql.connector.Error as e:
-        print(f"Error inserting data into MySQL: {e}")
+        raise CustomException(e, sys)
     finally:
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
-            print("Database connection closed.")
+            logging("Database connection closed.")
