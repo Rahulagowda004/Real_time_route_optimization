@@ -162,7 +162,6 @@ def get_db_connection():
     )
 
 def data_into_db(data):
-
     connection = None
     try:
         # Establish database connection
@@ -179,12 +178,12 @@ def data_into_db(data):
         """
 
         cursor.execute(insert_query, (
-            data['ID'], data['Delivery_person_Age'], data['Delivery_person_Ratings'], 
-            data['translogi_latitude'], data['translogi_longitude'], data['Delivery_location_latitude'], 
-            data['Delivery_location_longitude'], data['Order_Date'], data['Time_Orderd'], 
-            data['Weatherconditions'], data['Road_traffic_density'], data['Vehicle_condition'], 
-            data['Type_of_vehicle'], data['multiple_deliveries'], data['City'], 
-            data['Temperature'], data['Traffic_Index'], data['Time_taken']
+            data['ID'], data['delivery_person_age'], data['delivery_person_ratings'],  # Adjusted here
+            data['translogi_latitude'], data['translogi_longitude'], data['delivery_location_latitude'], 
+            data['delivery_location_longitude'], data['order_date'], data['time_orderd'], 
+            data['weatherconditions'], data['road_traffic_density'], data['vehicle_condition'], 
+            data['type_of_vehicle'], data['multiple_deliveries'], data['city'], 
+            data['temperature'], data['traffic_index'], data['Time_taken']
         ))
 
         connection.commit()
