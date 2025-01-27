@@ -93,31 +93,6 @@ def predict_delivery_time():
         logging.error(f"Error in predict_delivery_time: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/geocode', methods=['POST'])
-def geocode_address():
-    try:
-        data = request.json
-        print("Received data from frontend (geocode):", data)
-        
-        global latitude, longitude
-        
-        address = data['address']
-        latitude, longitude = delivery_location_latitude, delivery_location_longitude
-        logging.info(f"geoadress latitude: {latitude}, longitude: {longitude}")
-        if latitude and longitude:
-            return jsonify({
-                'lat': latitude,
-                'lng': longitude
-            })
-        else:
-            return jsonify({'error': 'Address not found'}), 404
-            
-    except Exception as e:
-        print("Error in /geocode:", str(e))
-        return jsonify({
-            'error': str(e)
-        }), 500
-
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
     try:
@@ -187,17 +162,11 @@ def save_route_directions():
             'instructions': directions['instructions']
         }
 
-        logging.info(f"""
-        Route Details:
-        From: ({route_data['pickup_lat']}, {route_data['pickup_lng']})
-        To: ({route_data['delivery_lat']}, {route_data['delivery_lng']})
-        Distance: {route_data['total_distance']}m
-        
-        Turn-by-turn directions:
-        {chr(10).join(f"{i+1}. {instruction}" for i, instruction in enumerate(route_data['instructions']))}
-        """)
+        logging.info(f"Saving route data to database: {route_data}")
         
         routes_to_db(route_data)
+        
+        logging.info("Route directions saved successfully!")
         
         return jsonify({
             'message': 'Route directions received successfully',
