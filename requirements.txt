@@ -12,6 +12,6 @@ flask
 flask-cors
 python-dotenv
 geopy
-geopyflask
 mysql-connector-python
 opencage
+joblib
