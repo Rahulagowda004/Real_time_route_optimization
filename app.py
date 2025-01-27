@@ -121,14 +121,6 @@ def geocode_address():
             'error': str(e)
         }), 500
 
-@app.route('/routes', methods=['GET'])
-def get_routes():
-    routes = [
-        {'lat': pickup_location_latitude, 'lng': pickup_location_longitude},
-        {'lat': delivery_location_latitude, 'lng': delivery_location_longitude}
-    ]
-    return jsonify(routes)
-
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
     print("Server is running in http://localhost:5000")
