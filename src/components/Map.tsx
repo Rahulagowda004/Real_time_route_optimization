@@ -1,12 +1,23 @@
 import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
-import "leaflet-routing-machine";
+import "leaflet/dist/leaflet.css";
 import { RoutePoint } from "../types";
+
+// Import routing machine after leaflet
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+import "leaflet-routing-machine";
 
 interface MapProps {
   routes: RoutePoint[];
   center: [number, number];
+}
+
+interface RouteDirection {
+  distance: number;
+  duration: number;
+  instructions: string[];
+  path: Array<[number, number]>; // Add this to store route coordinates
 }
 
 function RoutingMachineControl({ routes }: { routes: RoutePoint[] }) {
@@ -34,6 +45,40 @@ function RoutingMachineControl({ routes }: { routes: RoutePoint[] }) {
       // Hide the control container
       const container = routingControlRef.current.getContainer();
       container.style.display = "none";
+
+      // Capture route details and send to backend
+      routingControlRef.current.on("routesfound", async function (e) {
+        const route = e.routes[0];
+        const directions: RouteDirection = {
+          distance: route.summary.totalDistance,
+          duration: route.summary.totalTime,
+          instructions: route.instructions.map(
+            (instruction) => instruction.text
+          ),
+          path: route.coordinates.map((coord) => [coord.lat, coord.lng]),
+        };
+
+        try {
+          const response = await fetch(
+            "http://localhost:5000/route-directions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                pickup: routes[0],
+                delivery: routes[1],
+                directions,
+              }),
+            }
+          );
+          const data = await response.json();
+          console.log("Route saved:", data);
+        } catch (error) {
+          console.error("Failed to send route directions:", error);
+        }
+      });
 
       map.fitBounds([
         [routes[0].lat, routes[0].lng],

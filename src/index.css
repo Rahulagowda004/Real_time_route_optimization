@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remove the direct imports of leaflet CSS as they're now handled in the components */
+
 @layer base {
   input[type="text"],
   input[type="datetime-local"] {
