@@ -188,12 +188,12 @@ def data_into_db(data):
         ))
 
         connection.commit()
-        logging("Record inserted successfully!")
+        print("Record inserted successfully!")
 
     except mysql.connector.Error as e:
-        raise CustomException(e, sys)
+        print(f"Error inserting data into MySQL: {e}")
     finally:
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
-            logging("Database connection closed.")
+            print("Database connection closed.")

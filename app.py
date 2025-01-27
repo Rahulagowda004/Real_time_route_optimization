@@ -1,10 +1,12 @@
 from flask_cors import CORS
 import uuid
+import sys
 from datetime import datetime
 from flask import Flask, request, jsonify
 from src.pipeline.prediction import PredictPipeline
 from src.utils.logger import logging
 import mysql
+from src.utils.exception import CustomException
 from src.utils.utils import (get_traffic_density, get_traffic_index,get_coordinates,get_weather,data_into_db)
 
 app = Flask(__name__)
@@ -17,13 +19,19 @@ def predict_delivery_time():
         logging.info(f"Received data from frontend (predict): {data}")
         
         global delivery_location_latitude, delivery_location_longitude
-        
+
         pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
         logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
         delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
         logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
         
         temperature,weathercondition = get_weather(City)
+        
+        if data['city'] == "Metropolitan":
+            data['city'] = "Metropolitian"
+        else:
+            None
+            
         
         if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
             return jsonify({'error': 'Invalid address'}), 400
@@ -63,7 +71,7 @@ def predict_delivery_time():
         })
     
     except Exception as e:
-        print("Error in /predict:", str(e))
+        print(CustomException(e,sys))
         return jsonify({
             'error': str(e)
         }), 500
@@ -75,8 +83,7 @@ def geocode_address():
         data = request.json
         print("Received data from frontend (geocode):", data)
         
-        address = data['address']
-        latitude, longitude = delivery_location_latitude, delivery_location_longitude
+        latitude, longitude,city = delivery_location_latitude, delivery_location_longitude, city
         logging.info(f"geoadress latitude: {latitude}, longitude: {longitude}")
         if latitude and longitude:
             return jsonify({
@@ -87,7 +94,7 @@ def geocode_address():
             return jsonify({'error': 'Address not found'}), 404
             
     except Exception as e:
-        print("Error in /geocode:", str(e))
+        print(CustomException(e,sys))
         return jsonify({
             'error': str(e)
         }), 500
