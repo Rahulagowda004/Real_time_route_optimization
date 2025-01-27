@@ -151,7 +151,7 @@ def get_trend_data():
                 'timestamp': datetime(2024, 1, 1, i).isoformat(),
                 'deliveryTime': 20 + (i % 5),
                 'traffic': 40 + (i % 10),
-                'temperature': 15 + (i % 3)
+                'temperature': 155 + (i % 3)
             }
             for i in range(24)
         ]
