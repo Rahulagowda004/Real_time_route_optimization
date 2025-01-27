@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import { RoutePoint } from "../types";
+import taxiIconUrl from "/taxi.png"; // Add this import at the top
 
 interface MapProps {
   routes: RoutePoint[];
@@ -17,8 +18,9 @@ function RoutingMachineControl({ routes }: { routes: RoutePoint[] }) {
   useEffect(() => {
     if (routes.length >= 2) {
       const taxiIcon = L.icon({
-        iconUrl: "img/taxi.png",
+        iconUrl: taxiIconUrl, // Use the imported icon URL
         iconSize: [70, 70],
+        iconAnchor: [35, 35], // Add this to center the icon
       });
 
       if (!markerRef.current) {
