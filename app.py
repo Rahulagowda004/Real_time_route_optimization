@@ -133,6 +133,7 @@ def geocode_address():
         }), 500
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
     try:
@@ -183,6 +184,8 @@ def get_trend_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
         
+=======
+>>>>>>> parent of 4791ba1 (metrics, delivery trend and prediction is working just fine)
 =======
 >>>>>>> parent of 4791ba1 (metrics, delivery trend and prediction is working just fine)
 if __name__ == '__main__':
