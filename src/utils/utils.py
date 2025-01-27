@@ -175,7 +175,7 @@ def data_into_db(data):
             Delivery_location_latitude, Delivery_location_longitude, Order_Date, Time_Orderd, 
             Weatherconditions, Road_traffic_density, Vehicle_condition, Type_of_vehicle, 
             multiple_deliveries, City, Temperature, Traffic_Index, Time_taken
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         cursor.execute(insert_query, (
