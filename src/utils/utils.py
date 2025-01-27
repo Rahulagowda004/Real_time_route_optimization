@@ -67,40 +67,47 @@ def load_object(file_path):
 geocoder = OpenCageGeocode(os.getenv("OPENCAGE_API_KEY"))
 
 def get_coordinates(address):
-    result = geocoder.geocode(address)
-    
-    if result:
-        city = result[0]['components']['_normalized_city']
-        lat = result[0]['geometry']['lat']
-        lng = result[0]['geometry']['lng']
-        print(f"Latitude: {lat}, Longitude: {lng}")
-        return lat, lng, city
-    else:
-        print("Address not found")
-        return None, None, None
+    try:
+        result = geocoder.geocode(address)
+        
+        if result:
+            city = result[0]['components']['_normalized_city']
+            lat = result[0]['geometry']['lat']
+            lng = result[0]['geometry']['lng']
+            return lat, lng, city
+            logging.info("Coordinates fetched successfully")
+        else:
+            logging.info("Address not found")
+            print("Address not found")
+            return None, None, None
+    except Exception as e:
+        raise CustomException(e, sys)
     
 def get_traffic_index( latitude, longitude):
-    url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
-    params = {
-        'key': os.getenv("TOMTOM_API_KEY"),
-        'point': f"{latitude},{longitude}"
-    }
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        try:
-            flow_data = data['flowSegmentData']
-            current_travel_time = flow_data['currentTravelTime']
-            free_flow_travel_time = flow_data['freeFlowTravelTime']
-            
-            traffic_index = current_travel_time / free_flow_travel_time
-            return float(traffic_index)
-        except KeyError:
-            print("KeyError: Required data missing in response.")
+    try:
+        url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
+        params = {
+            'key': os.getenv("TOMTOM_API_KEY"),
+            'point': f"{latitude},{longitude}"
+        }
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            try:
+                flow_data = data['flowSegmentData']
+                current_travel_time = flow_data['currentTravelTime']
+                free_flow_travel_time = flow_data['freeFlowTravelTime']
+                
+                traffic_index = current_travel_time / free_flow_travel_time
+                return float(traffic_index)
+            except KeyError:
+                print("KeyError: Required data missing in response.")
+                return 2.0
+        else:
+            print(f"Error: {response.status_code}, {response.text}")
             return 2.0
-    else:
-        print(f"Error: {response.status_code}, {response.text}")
-        return 2.0
+    except Exception as e:      
+        raise CustomException(e, sys)
 
 def get_traffic_density(traffic_index):
     if traffic_index <= 1.0:
@@ -113,46 +120,50 @@ def get_traffic_density(traffic_index):
         return "Jam"
     
 def get_weather(city):
-    api_key = os.getenv("OPENWEATHER_API_KEY")
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+    try:
+        api_key = os.getenv("OPENWEATHER_API_KEY")
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
 
-    response = requests.get(url)
+        response = requests.get(url)
 
-    if response.status_code == 200:
-        data = response.json()
+        if response.status_code == 200:
+            data = response.json()
 
-        # Extract temperature in Kelvin and convert to Celsius
-        temperature_kelvin = data['main']['temp']
-        Temperature = temperature_kelvin - 273.15
+            # Extract temperature in Kelvin and convert to Celsius
+            temperature_kelvin = data['main']['temp']
+            Temperature = temperature_kelvin - 273.15
 
-        # Map weather condition codes to conditions
-        weather_mapping = {
-            "Clear": "Sunny",
-            "Thunderstorm": "Stormy",
-            "Dust": "Sandstorms",
-            "Haze": "Sandstorms",
-            "Clouds": "Cloudy",
-            "Mist": "Fog",
-            "Fog": "Fog",
-            "Smoke": "Fog",
-            "Drizzle": "Cloudy",
-            "Rain": "Cloudy",
-            "Squall": "Windy",
-            "Tornado": "Windy",
-            "Ash": "Sandstorms",
-            "Sand": "Sandstorms",
-        }
+            # Map weather condition codes to conditions
+            weather_mapping = {
+                "Clear": "Sunny",
+                "Thunderstorm": "Stormy",
+                "Dust": "Sandstorms",
+                "Haze": "Sandstorms",
+                "Clouds": "Cloudy",
+                "Mist": "Fog",
+                "Fog": "Fog",
+                "Smoke": "Fog",
+                "Drizzle": "Cloudy",
+                "Rain": "Cloudy",
+                "Squall": "Windy",
+                "Tornado": "Windy",
+                "Ash": "Sandstorms",
+                "Sand": "Sandstorms",
+            }
 
-        # Extract main weather description
-        weather_main = data['weather'][0]['main']
+            # Extract main weather description
+            weather_main = data['weather'][0]['main']
 
-        # Get mapped condition or fallback to default
-        weathercondition = weather_mapping.get(weather_main, weather_main)
-
-        return Temperature, weathercondition
-    else:
-        response.raise_for_status()
-
+            # Get mapped condition or fallback to default
+            weathercondition = weather_mapping.get(weather_main, weather_main)
+            logging.info("Weather data fetched successfully")
+            return Temperature, weathercondition
+        else:
+            logging.info("Error fetching weather data")
+            response.raise_for_status()
+    except Exception as e:   
+        raise CustomException(e, sys)
+    
 def get_db_connection():
 
     return mysql.connector.connect(
@@ -188,9 +199,9 @@ def data_into_db(data):
         ))
 
         connection.commit()
-
-    except mysql.connector.Error as e:
-        print(f"Error inserting data into MySQL: {e}")
+        logging.info("Data inserted successfully into raw_data table")
+    except Exception as e:
+        logging.error(CustomException(e, sys))
     finally:
         if connection and connection.is_connected():
             cursor.close()
@@ -225,9 +236,9 @@ def routes_to_db(route_data):
 
         cursor.execute(insert_query, values)
         connection.commit()
-
-    except mysql.connector.Error as e:
-        raise e
+        logging.info("Route data inserted successfully into optimized_routes table")
+    except Exception as e:
+        logging.error(CustomException(e, sys))
     finally:
         if 'connection' in locals() and connection.is_connected():
             cursor.close()

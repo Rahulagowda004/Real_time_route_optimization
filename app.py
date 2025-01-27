@@ -15,29 +15,21 @@ def predict_delivery_time():
         data = request.json
         logging.info(f"Received data from frontend: {data}")
         
-        # pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
-        # logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
-        # delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
-        # logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
+        pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
+        logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
+        delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
+        logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
         
-        # temperature,weathercondition = get_weather(City)
+        temperature,weathercondition = get_weather(City)
         
-        # if data['city'] == "Metropolitan":
-        #     data['city'] = "Metropolitian"
-        # else:
-        #     None
+        if data['city'] == "Metropolitan":
+            data['city'] = "Metropolitian"
+        else:
+            None
             
         
-        # if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
-        #     return jsonify({'error': 'Invalid address'}), 400
-        
-        pickup_location_latitude = 12.954242231599048
-        pickup_location_longitude = 77.58607487423697
-        delivery_location_latitude = 13.007011276609017
-        delivery_location_longitude = 77.59365422340476
-        traffic_index = 1.2
-        weathercondition = "Sunny"
-        temperature = 29.0
+        if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
+            return jsonify({'error': 'Invalid address'}), 400
         
         now = datetime.now()
         data = {
@@ -168,11 +160,13 @@ def save_route_directions():
         
         logging.info("Route directions saved successfully!")
         
+        print("Everything completed successfully")
+        
         return jsonify({
             'message': 'Route directions received successfully',
             'route': route_data
         })
-
+    
     except Exception as e:
         logging.error(f"Error processing route directions: {str(e)}")
         return jsonify({'error': str(e)}), 500
