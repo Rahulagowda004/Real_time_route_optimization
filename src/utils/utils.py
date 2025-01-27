@@ -197,3 +197,38 @@ def data_into_db(data):
             cursor.close()
             connection.close()
             print("Database connection closed.")
+
+def routes_to_db(route_data):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        
+        instructions_str = '\n'.join(
+            f"{i+1}. {instruction}" 
+            for i, instruction in enumerate(route_data['directions']['instructions'])
+        )
+        
+        insert_query = """
+        INSERT INTO optimized_routes (
+            pickup_lat, pickup_lng, delivery_lat, delivery_lng,
+            total_distance, instructions
+        ) VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        
+        values = (
+            route_data['pickup']['lat'],
+            route_data['pickup']['lng'], 
+            route_data['delivery']['lat'],
+            route_data['delivery']['lng'],
+            route_data['directions']['distance'],
+            instructions_str
+        )
+        
+        cursor.execute(insert_query, values)
+        connection.commit()
+        print("Routes inserted successfully!")
+    except mysql.connector.Error as e:
+        raise CustomException(e, sys)
+    finally:
+        cursor.close()
+        connection.close()

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from src.pipeline.prediction import PredictPipeline
 from src.utils.logger import logging
-from src.utils.utils import (get_traffic_density, get_traffic_index, get_coordinates, get_weather, data_into_db,get_db_connection)
+from src.utils.utils import (get_traffic_density, get_traffic_index, get_coordinates, get_weather, data_into_db,get_db_connection,routes_to_db)
 
 app = Flask(__name__)
 CORS(app)
@@ -15,29 +15,29 @@ def predict_delivery_time():
         data = request.json
         logging.info(f"Received data from frontend: {data}")
         
-        pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
-        logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
-        delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
-        logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
+        # pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
+        # logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
+        # delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
+        # logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
         
-        temperature,weathercondition = get_weather(City)
+        # temperature,weathercondition = get_weather(City)
         
-        if data['city'] == "Metropolitan":
-            data['city'] = "Metropolitian"
-        else:
-            None
+        # if data['city'] == "Metropolitan":
+        #     data['city'] = "Metropolitian"
+        # else:
+        #     None
             
         
-        if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
-            return jsonify({'error': 'Invalid address'}), 400
+        # if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
+        #     return jsonify({'error': 'Invalid address'}), 400
         
-        # pickup_location_latitude = 12.954242231599048
-        # pickup_location_longitude = 77.58607487423697
-        # delivery_location_latitude = 13.007011276609017
-        # delivery_location_longitude = 77.59365422340476
-        # traffic_index = 1.2
-        # weathercondition = "Sunny"
-        # temperature = 29.0
+        pickup_location_latitude = 12.954242231599048
+        pickup_location_longitude = 77.58607487423697
+        delivery_location_latitude = 13.007011276609017
+        delivery_location_longitude = 77.59365422340476
+        traffic_index = 1.2
+        weathercondition = "Sunny"
+        temperature = 29.0
         
         now = datetime.now()
         data = {
@@ -174,12 +174,10 @@ def save_route_directions():
         data = request.json
         logging.info(f"Received route directions: {data}")
 
-        # Extract route information
         pickup = data['pickup']
         delivery = data['delivery']
         directions = data['directions']
-
-        # Store route data including the path
+        
         route_data = {
             'pickup_lat': pickup['lat'],
             'pickup_lng': pickup['lng'],
@@ -189,7 +187,6 @@ def save_route_directions():
             'instructions': directions['instructions']
         }
 
-        # Log detailed route information with instructions
         logging.info(f"""
         Route Details:
         From: ({route_data['pickup_lat']}, {route_data['pickup_lng']})
@@ -199,6 +196,8 @@ def save_route_directions():
         Turn-by-turn directions:
         {chr(10).join(f"{i+1}. {instruction}" for i, instruction in enumerate(route_data['instructions']))}
         """)
+        
+        routes_to_db(route_data)
         
         return jsonify({
             'message': 'Route directions received successfully',
