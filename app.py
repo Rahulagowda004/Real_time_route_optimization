@@ -14,49 +14,26 @@ CORS(app)
 def predict_delivery_time():
     try:
         data = request.json
-        # logging.info(f"Received data from frontend (predict): {data}")
+        logging.info(f"Received data from frontend (predict): {data}")
+        
+        global delivery_location_latitude, delivery_location_longitude
+        
+        pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
+        logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
+        delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
+        logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
+        
+        temperature,weathercondition = get_weather(City)
+        
+        if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
+            return jsonify({'error': 'Invalid address'}), 400
 
-        # pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
-        # logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
-        # delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
-        # logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
-        
-        # temperature,weathercondition = get_weather(City)
-        
-        # if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
-        #     return jsonify({'error': 'Invalid address'}), 400
-
-        # now = datetime.now()
-        
-        # traffic_index = get_traffic_index(latitude=delivery_location_latitude, longitude=delivery_location_longitude)
-        global delivery_location_latitude, delivery_location_longitude, city
-        city = "banlgore"
-        ID = int(uuid.uuid4().hex[:4], 16)
-        pickup_location_latitude = 22.745049
-        pickup_location_longitude = 75.892471
-        delivery_location_latitude = 22.765049
-        delivery_location_longitude = 75.912471
-        traffic_index = 1.2
-        weathercondition = "Sunny"
-        temperature = 29.0
         now = datetime.now()
-        data = {
-            "city": "Urban"
-        }
-        logging.info(f"""ID: {ID},
-                pickup_location_latitude: {pickup_location_latitude},
-                pickup_location_longitude: {pickup_location_longitude},
-                delivery_location_latitude: {delivery_location_latitude},
-                delivery_location_longitude: {delivery_location_longitude},
-                order_date: {now.strftime('%d-%m-%y')},
-                time_orderd: {now.strftime('%H:%M:%S')},
-                road_traffic_density: {get_traffic_density(traffic_index)},
-                weatherconditions: {weathercondition},
-                city: {data['city']}, temperature: {temperature},
-                traffic_index: {traffic_index}""")
+        
+        traffic_index = get_traffic_index(latitude=delivery_location_latitude, longitude=delivery_location_longitude)
         
         pipeline_params = {
-            'ID': ID,
+            'ID': int(uuid.uuid4().hex[:4], 16),
             'delivery_person_age': 37.0,
             'delivery_person_ratings': 4.9,
             'translogi_latitude': pickup_location_latitude,
@@ -99,8 +76,7 @@ def geocode_address():
         print("Received data from frontend (geocode):", data)
         
         address = data['address']
-        # latitude, longitude,city = get_coordinates(address)
-        latitude, longitude,city = delivery_location_latitude, delivery_location_longitude, city
+        latitude, longitude = delivery_location_latitude, delivery_location_longitude
         logging.info(f"geoadress latitude: {latitude}, longitude: {longitude}")
         if latitude and longitude:
             return jsonify({
