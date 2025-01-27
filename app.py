@@ -1,16 +1,36 @@
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import uuid
-import sys
 from datetime import datetime
-from flask import Flask, request, jsonify
 from src.pipeline.prediction import PredictPipeline
 from src.utils.logger import logging
-import mysql
-from src.utils.exception import CustomException
-from src.utils.utils import (get_traffic_density, get_traffic_index,get_coordinates,get_weather,data_into_db)
+from src.utils.utils import (get_traffic_density, get_traffic_index, get_coordinates, get_weather, data_into_db)
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/metrics', methods=['GET'])
+def get_metrics():
+    metrics = {
+        'totalDeliveries': 2154,
+        'averageTime': 25,
+        'vehicleUtilization': 90,
+        'totalCost': 150.75
+    }
+    return jsonify(metrics)
+
+@app.route('/trendData', methods=['GET'])
+def get_trend_data():
+    trend_data = [
+        {
+            'timestamp': datetime(2024, 1, 1, i).isoformat(),  # Changed month from 0 to 1
+            'deliveryTime': 20 + (i % 5),
+            'traffic': 40 + (i % 10),
+            'temperature': 15 + (i % 3)
+        }
+        for i in range(24)
+    ]
+    return jsonify(trend_data)
 
 @app.route('/predict', methods=['POST'])
 def predict_delivery_time():
@@ -19,26 +39,20 @@ def predict_delivery_time():
         logging.info(f"Received data from frontend (predict): {data}")
         
         global delivery_location_latitude, delivery_location_longitude
-
-        pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
-        logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
-        delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
-        logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
         
-        temperature,weathercondition = get_weather(City)
-        
-        if data['city'] == "Metropolitan":
-            data['city'] = "Metropolitian"
-        else:
-            None
-            
-        
-        if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
-            return jsonify({'error': 'Invalid address'}), 400
-
         now = datetime.now()
         
-        traffic_index = get_traffic_index(latitude=delivery_location_latitude, longitude=delivery_location_longitude)
+        pickup_location_latitude = 22.745049
+        pickup_location_longitude = 75.892471
+        delivery_location_latitude = 22.765049
+        delivery_location_longitude = 75.912471
+        traffic_index = 1.2
+        weathercondition = "Sunny"
+        temperature = 29.0
+        now = datetime.now()
+        data = {
+            "city": "Urban"
+        }
         
         pipeline_params = {
             'ID': int(uuid.uuid4().hex[:4], 16),
@@ -69,21 +83,23 @@ def predict_delivery_time():
         return jsonify({
             'predicted_time': round(predicted_time[0], 2)
         })
-    
+
     except Exception as e:
-        print(CustomException(e,sys))
+        print("Error in /predict:", str(e))
         return jsonify({
             'error': str(e)
         }), 500
-        
+
 @app.route('/geocode', methods=['POST'])
 def geocode_address():
     try:
-        # Log the received data
         data = request.json
         print("Received data from frontend (geocode):", data)
         
-        latitude, longitude,city = delivery_location_latitude, delivery_location_longitude, city
+        global latitude, longitude
+        
+        address = data['address']
+        latitude, longitude = delivery_location_latitude, delivery_location_longitude
         logging.info(f"geoadress latitude: {latitude}, longitude: {longitude}")
         if latitude and longitude:
             return jsonify({
@@ -94,10 +110,18 @@ def geocode_address():
             return jsonify({'error': 'Address not found'}), 404
             
     except Exception as e:
-        print(CustomException(e,sys))
+        print("Error in /geocode:", str(e))
         return jsonify({
             'error': str(e)
         }), 500
+
+@app.route('/routes', methods=['GET'])
+def get_routes():
+    routes = [
+        {'lat': 22.74, 'lng': 75.89},
+        {'lat': 22.76, 'lng': 75.91}
+    ]
+    return jsonify(routes)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
