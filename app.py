@@ -4,10 +4,48 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 from src.pipeline.prediction import PredictPipeline
 from src.utils.logger import logging
-from src.utils.utils import (get_traffic_density, get_traffic_index,get_coordinates,get_weather,data_into_db)
+import mysql
+from src.utils.utils import (get_traffic_density, get_traffic_index,get_coordinates,get_weather,get_db_connection)
 
 app = Flask(__name__)
 CORS(app)
+
+def data_into_db(data):
+    connection = None
+    try:
+        # Establish database connection
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        insert_query = """
+        INSERT INTO raw_data (
+            ID, Delivery_person_Age, Delivery_person_Ratings, pickup_location_latitude, pickup_location_longitude,
+            Delivery_location_latitude, Delivery_location_longitude, Order_Date, Time_Orderd, 
+            Weatherconditions, Road_traffic_density, Vehicle_condition, Type_of_vehicle, 
+            multiple_deliveries, City, Temperature, Traffic_Index, Time_taken
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(insert_query, (
+            data['ID'], data['delivery_person_age'], data['delivery_person_ratings'],  # Adjusted here
+            data['translogi_latitude'], data['translogi_longitude'], data['delivery_location_latitude'], 
+            data['delivery_location_longitude'], data['order_date'], data['time_orderd'], 
+            data['weatherconditions'], data['road_traffic_density'], data['vehicle_condition'], 
+            data['type_of_vehicle'], data['multiple_deliveries'], data['city'], 
+            data['temperature'], data['traffic_index'], data['Time_taken']
+        ))
+
+        connection.commit()
+        print("Record inserted successfully!")
+
+    except mysql.connector.Error as e:
+        print(f"Error inserting data into MySQL: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed.")
+
 
 @app.route('/predict', methods=['POST'])
 def predict_delivery_time():
@@ -73,12 +111,13 @@ def predict_delivery_time():
             'temperature': temperature,
             'traffic_index': traffic_index
         }
-
+        logging.info(f"pipeline_params: {pipeline_params}")
         pipeline = PredictPipeline(**pipeline_params)
         logging.info(f"pipeline: {pipeline}")
         predicted_time = pipeline.predict()
         logging.info(f"predicted_time: {predicted_time}")
         pipeline_params['Time_taken'] = predicted_time[0]
+        data_into_db(pipeline_params)
         return jsonify({
             'predicted_time': round(predicted_time[0], 2)
         })
