@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Map } from "./components/Map";
 import { Metrics } from "./components/Metrics";
 import { OrderForm } from "./components/OrderForm";
 import { TrendChart } from "./components/TrendChart";
 import { DeliveryOrder, RoutePoint, DeliveryMetrics } from "./types";
 import { MapPin } from "lucide-react";
-import { fetchMetrics, fetchTrendData } from "./services/api";
 
+// Example data - in a real app, this would come from an API
 const initialRoutes: RoutePoint[] = [
   { lat: 51.505, lng: -0.09 },
   { lat: 51.51, lng: -0.1 },
@@ -19,45 +19,20 @@ const initialMetrics: DeliveryMetrics = {
   vehicleUtilization: 85,
 };
 
-interface TrendDataPoint {
-  timestamp: string;
-  deliveryTime: number;
-  traffic: number;
-  temperature: number;
-}
+const trendData = Array.from({ length: 24 }, (_, i) => ({
+  timestamp: new Date(2024, 0, 1, i).toISOString(),
+  deliveryTime: 20 + Math.random() * 20,
+  traffic: 40 + Math.random() * 60,
+  temperature: 15 + Math.random() * 10,
+}));
 
 function App() {
   const [routes] = useState<RoutePoint[]>(initialRoutes);
-  const [metrics, setMetrics] = useState<DeliveryMetrics>(initialMetrics);
-  const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
+  const [metrics] = useState<DeliveryMetrics>(initialMetrics);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [metricsData, trendData] = await Promise.all([
-          fetchMetrics(),
-          fetchTrendData(),
-        ]);
-
-        setMetrics(metricsData);
-        setTrendData(trendData);
-      } catch (error) {
-        console.error("Failed to load data:", error);
-      }
-    };
-
-    loadData();
-  }, []);
-
-  const handleOrderSubmit = async (
-    order: Omit<DeliveryOrder, "id" | "status">
-  ) => {
-    try {
-      // API call would go here
-      console.log("New order:", order);
-    } catch (error) {
-      console.error("Failed to submit order:", error);
-    }
+  const handleOrderSubmit = (order: Omit<DeliveryOrder, "id" | "status">) => {
+    console.log("New order:", order);
+    // In a real app, this would be sent to an API
   };
 
   return (

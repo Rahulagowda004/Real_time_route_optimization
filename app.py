@@ -9,6 +9,29 @@ from src.utils.utils import (get_traffic_density, get_traffic_index, get_coordin
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/metrics', methods=['GET'])
+def get_metrics():
+    metrics = {
+        'totalDeliveries': 2154,
+        'averageTime': 25,
+        'vehicleUtilization': 90,
+        'totalCost': 150.75
+    }
+    return jsonify(metrics)
+
+@app.route('/trendData', methods=['GET'])
+def get_trend_data():
+    trend_data = [
+        {
+            'timestamp': datetime(2024, 1, 1, i).isoformat(),  # Changed month from 0 to 1
+            'deliveryTime': 20 + (i % 5),
+            'traffic': 40 + (i % 10),
+            'temperature': 15 + (i % 3)
+        }
+        for i in range(24)
+    ]
+    return jsonify(trend_data)
+
 @app.route('/predict', methods=['POST'])
 def predict_delivery_time():
     try:
@@ -109,6 +132,7 @@ def geocode_address():
             'error': str(e)
         }), 500
 
+<<<<<<< HEAD
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
     try:
@@ -159,6 +183,8 @@ def get_trend_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
         
+=======
+>>>>>>> parent of 4791ba1 (metrics, delivery trend and prediction is working just fine)
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
     print("Server is running in http://localhost:5000")
