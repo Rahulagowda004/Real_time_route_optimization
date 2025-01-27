@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import { RoutePoint } from "../types";
-import taxiIconUrl from "/taxi.png"; // Add this import at the top
 
 interface MapProps {
   routes: RoutePoint[];
@@ -13,22 +12,9 @@ interface MapProps {
 function RoutingMachineControl({ routes }: { routes: RoutePoint[] }) {
   const map = useMap();
   const routingControlRef = useRef<L.Routing.Control | null>(null);
-  const markerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
     if (routes.length >= 2) {
-      const taxiIcon = L.icon({
-        iconUrl: taxiIconUrl, // Use the imported icon URL
-        iconSize: [70, 70],
-        iconAnchor: [35, 35], // Add this to center the icon
-      });
-
-      if (!markerRef.current) {
-        markerRef.current = L.marker([routes[0].lat, routes[0].lng], {
-          icon: taxiIcon,
-        }).addTo(map);
-      }
-
       if (routingControlRef.current) {
         map.removeControl(routingControlRef.current);
       }
@@ -49,14 +35,6 @@ function RoutingMachineControl({ routes }: { routes: RoutePoint[] }) {
       const container = routingControlRef.current.getContainer();
       container.style.display = "none";
 
-      routingControlRef.current.on("routesfound", function (e) {
-        e.routes[0].coordinates.forEach((coord, index) => {
-          setTimeout(() => {
-            markerRef.current?.setLatLng([coord.lat, coord.lng]);
-          }, 100 * index);
-        });
-      });
-
       map.fitBounds([
         [routes[0].lat, routes[0].lng],
         [routes[1].lat, routes[1].lng],
@@ -66,9 +44,6 @@ function RoutingMachineControl({ routes }: { routes: RoutePoint[] }) {
     return () => {
       if (routingControlRef.current) {
         map.removeControl(routingControlRef.current);
-      }
-      if (markerRef.current) {
-        map.removeLayer(markerRef.current);
       }
     };
   }, [map, routes]);
