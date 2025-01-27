@@ -11,7 +11,7 @@ catboost
 flask
 flask-cors
 python-dotenv
-geopy==2.4.1
+geopy
 geopyflask
 mysql-connector-python
 opencage
