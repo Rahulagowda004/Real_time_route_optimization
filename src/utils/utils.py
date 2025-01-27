@@ -4,12 +4,13 @@ import time
 import pickle
 import requests
 import numpy as np 
-import pandas as pd
+import pandas as pd   
+import mysql.connector
 from dotenv import load_dotenv
 from sklearn.metrics import r2_score
-from sklearn.model_selection import GridSearchCV
-from src.utils.exception import CustomException
 from opencage.geocoder import OpenCageGeocode
+from src.utils.exception import CustomException
+from sklearn.model_selection import GridSearchCV
 
 load_dotenv()
 
@@ -150,3 +151,49 @@ def get_weather(city):
         return Temperature, weathercondition
     else:
         response.raise_for_status()
+
+def get_db_connection():
+
+    return mysql.connector.connect(
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PASSWORD"),
+        database=os.getenv("MYSQL_DATABASE")
+    )
+
+def data_into_db(data):
+
+    connection = None
+    try:
+        # Establish database connection
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        insert_query = """
+        INSERT INTO raw_data (
+            ID, Delivery_person_Age, Delivery_person_Ratings, pickup_location_latitude, pickup_location_longitude,
+            Delivery_location_latitude, Delivery_location_longitude, Order_Date, Time_Orderd, 
+            Weatherconditions, Road_traffic_density, Vehicle_condition, Type_of_vehicle, 
+            multiple_deliveries, City, Temperature, Traffic_Index, Time_taken
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(insert_query, (
+            data['ID'], data['Delivery_person_Age'], data['Delivery_person_Ratings'], 
+            data['translogi_latitude'], data['translogi_longitude'], data['Delivery_location_latitude'], 
+            data['Delivery_location_longitude'], data['Order_Date'], data['Time_Orderd'], 
+            data['Weatherconditions'], data['Road_traffic_density'], data['Vehicle_condition'], 
+            data['Type_of_vehicle'], data['multiple_deliveries'], data['City'], 
+            data['Temperature'], data['Traffic_Index'], data['Time_taken']
+        ))
+
+        connection.commit()
+        print("Record inserted successfully!")
+
+    except mysql.connector.Error as e:
+        print(f"Error inserting data into MySQL: {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed.")
