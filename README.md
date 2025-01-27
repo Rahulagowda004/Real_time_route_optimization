@@ -1,124 +1,192 @@
-# Real-time Route Optimization
+---
+# Real-Time Route Optimization 🚚
 
-A sophisticated system for optimizing delivery routes in real-time, considering various constraints and dynamic conditions.
+A cutting-edge system designed to revolutionize delivery operations by optimizing routes in real-time, accounting for traffic, delivery constraints, and dynamic conditions.
+---
 
-## Features
+## 🌟 Features
 
-- Real-time route calculation and optimization
-- Multiple vehicle support
-- Dynamic traffic conditions integration
-- Delivery time window constraints
-- Load capacity optimization
-- Real-time order tracking and updates
+- **Real-Time Route Optimization**  
+  Continuously calculates the most efficient routes based on current conditions.
 
-## Installation
+- **Multi-Vehicle Support**  
+  Seamlessly handles fleet routing to maximize efficiency.
 
-### Prerequisites
+- **Dynamic Traffic Integration**  
+  Adapts to real-time traffic and weather changes to ensure timely deliveries.
 
-- Python 3.11
-- Required Python packages (install using pip):
-  ```bash
-  pip install -r requirements.txt
-  ```
+- **Delivery Time Windows**  
+  Guarantees adherence to customer delivery schedules.
 
-## Getting Started
+- **Load Balancing**  
+  Optimizes vehicle capacity utilization for cost efficiency.
 
-1. Clone the repository
+- **Live Order Tracking**  
+  Provides real-time updates and order tracking.
+
+---
+
+## 🚀 Quick Start
+
+### 🛠 Backend Setup
+
+1. **Clone the Repository**:
+
    ```bash
-   git clone https://github.com/yourusername/Real_time_route_optimization.git
+   git clone https://github.com/rahulagowda004/real_time_route_optimization.git
+   cd real_time_route_optimization
    ```
-2. Install dependencies
-3. Configure your environment variables
-4. Run the application
 
-## Usage
+2. **Create a Virtual Environment**:
 
-```python
-from route_optimizer import RouteOptimizer
+   ```bash
+   python3.11 -m venv .venv
+   source .venv/bin/activate  # For Windows, use .venv\Scripts\activate
+   ```
 
-# Initialize the optimizer
-optimizer = RouteOptimizer()
+3. **Install Dependencies**:
 
-# Add delivery points
-optimizer.add_delivery_point(lat, lon, time_window)
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Calculate optimal route
-route = optimizer.calculate_route()
+4. **Run the Backend Server**:
+   ```bash
+   python app.py
+   ```
+
+### 🖼 Frontend Setup
+
+1. **Navigate to the Frontend Directory** (if applicable):
+
+   ```bash
+   cd frontend
+   ```
+
+2. **Install Node.js Dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the Frontend Server**:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 🛠 Configuration
+
+All customizable settings are located in `config/config.yaml`. Adjust as necessary:
+
+- **Vehicle Specifications**: Speed, capacity, and number of vehicles.
+- **Delivery Constraints**: Time windows and maximum route durations.
+- **Optimization Algorithms**: Choose from algorithms like Dijkstra, A\*, or custom methods.
+- **Mapping API Keys**: Integrate third-party mapping services for precise navigation.
+
+---
+
+## 📂 Directory Structure
+
+```
+real_time_route_optimization/
+├── README.md             # Project Documentation
+├── LICENSE               # Licensing Information
+├── app.py                # Backend Application
+├── requirements.txt      # Python Dependencies
+├── config/               # Configuration Files
+│   └── config.yaml
+├── artifacts/            # Model & Preprocessing Outputs
+│   ├── Data/             # Training & Testing Datasets
+│   │   ├── dataset.csv
+│   │   ├── test.csv
+│   │   └── train.csv
+│   ├── model/            # Trained Models
+│   │   └── best_model.pkl
+│   └── preprocessor/     # Preprocessing Tools
+│       ├── preprocessor.pkl
+│       └── traffic_weather_impact.pkl
+├── src/                  # Core Source Code
+│   ├── components/       # React Components
+│   │   ├── Map.tsx
+│   │   ├── Metrics.tsx
+│   │   ├── OrderForm.tsx
+│   │   └── TrendChart.tsx
+│   ├── services/         # API Services
+│   │   └── api.ts
+│   ├── utils/            # Utility Scripts
+│       ├── logger.py
+│       ├── exception.py
+│       └── utils.py
+└── research/             # Research & Analysis Notebooks
+    ├── data_analysis.ipynb
+    ├── data_cleaning.ipynb
+    ├── feature_engineering.ipynb
+    └── model_training.ipynb
 ```
 
-## Configuration
+---
 
-Modify `config.py` to adjust:
+## 📊 Model Insights
 
-- Vehicle parameters
-- Time window constraints
-- Optimization algorithms
-- API keys for mapping services
+Utilizing the [Food Delivery Dataset](https://www.kaggle.com/datasets/gauravmalik26/food-delivery-dataset/code), various regression models were trained and evaluated:
 
-## Repository Structure
+| Model                  | Training Time | R² Score  |
+| ---------------------- | ------------- | --------- |
+| **Random Forest**      | 41.12 sec     | **0.906** |
+| **Decision Tree**      | 0.64 sec      | 0.745     |
+| **Gradient Boosting**  | 11.99 sec     | 0.885     |
+| **Linear Regression**  | 0.02 sec      | 0.695     |
+| **XGBRegressor**       | 0.92 sec      | 0.874     |
+| **CatBoost Regressor** | 3.57 sec      | 0.864     |
+| **AdaBoost Regressor** | 14.05 sec     | 0.832     |
 
-```
-.
-├── README.md
-├── requirements.txt
-├── config.py
-├── route_optimizer.py
-├── utils.py
-├── tests/
-│   └── test_route_optimizer.py
-├── data/
-│   └── sample_data.csv
-├── docs/
-│   └── api_documentation.md
-```
+**Winner**: Random Forest with an R² Score of **0.906**!
 
-## File Details
+---
 
-### 1. `README.md`
+## 🧑‍💻 Contributing
 
-- Provides an overview of the project, installation instructions, usage examples, and configuration details.
+We welcome contributions! Here's how you can get involved:
 
-### 2. `requirements.txt`
+1. **Fork the Repository**:
 
-- Lists the Python packages required to run the project.
+   ```bash
+   git fork https://github.com/rahulagowda004/real_time_route_optimization
+   ```
 
-### 3. `config.py`
+2. **Create a Feature Branch**:
 
-- Configuration file for setting vehicle parameters, time window constraints, optimization algorithms, and API keys.
+   ```bash
+   git checkout -b feature/my-awesome-feature
+   ```
 
-### 4. `route_optimizer.py`
+3. **Commit Changes**:
 
-- Contains the `RouteOptimizer` class and methods for adding delivery points and calculating optimal routes.
+   ```bash
+   git commit -m "Add my awesome feature"
+   ```
 
-### 5. `utils.py`
+4. **Submit a Pull Request**:  
+   Navigate to the repository on GitHub and open a pull request.
 
-- Utility functions used across the project.
+---
 
-### 6. `tests/`
+## 📄 License
 
-- Directory containing unit tests for the project.
-  - `test_route_optimizer.py`: Unit tests for the `RouteOptimizer` class.
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
 
-### 7. `data/`
+---
 
-- Directory for storing input data files and output results.
-  - `sample_data.csv`: Sample data file for testing.
+## 📬 Contact
 
-### 8. `docs/`
+For any questions, issues, or suggestions:  
+**Rahul A Gowda**
 
-- Directory for project documentation.
-  - `api_documentation.md`: Documentation for the project's API.
+- GitHub: [rahulagowda004](https://github.com/rahulagowda004)
+- Email: [rahulagowda004@example.com](mailto:rahulagowda004@example.com)
 
-## Contributing
+Happy optimizing! 🚀
 
-1. Fork the repository
-2. Create your feature branch
-3. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For questions and support, please open an issue in the repository.
+---
