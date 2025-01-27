@@ -188,7 +188,6 @@ def data_into_db(data):
         ))
 
         connection.commit()
-        print("Record inserted successfully!")
 
     except mysql.connector.Error as e:
         print(f"Error inserting data into MySQL: {e}")
@@ -196,7 +195,6 @@ def data_into_db(data):
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
-            print("Database connection closed.")
 
 def routes_to_db(route_data):
     try:
@@ -227,7 +225,6 @@ def routes_to_db(route_data):
 
         cursor.execute(insert_query, values)
         connection.commit()
-        print("Route data inserted successfully!")
 
     except mysql.connector.Error as e:
         raise e
