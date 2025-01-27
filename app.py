@@ -13,30 +13,13 @@ CORS(app)
 def predict_delivery_time():
     try:
         data = request.json
-        logging.info(f"Received data from frontend (predict): {data}")
+        logging.info(f"Received data from frontend: {data}")
         
-        global delivery_location_latitude, delivery_location_longitude,pickup_location_latitude, pickup_location_longitude
-
-        # pickup_location_latitude, pickup_location_longitude,City = get_coordinates(data['pickupAddress'])
-        # logging.info(f"pickup_location: {pickup_location_latitude}, {pickup_location_longitude}")
-        # delivery_location_latitude, delivery_location_longitude,city = get_coordinates(data['address'])
-        # logging.info(f"delivery_location: {delivery_location_latitude}, {delivery_location_longitude}")
-        
-        # temperature,weathercondition = get_weather(City)
-        
-        # if data['city'] == "Metropolitan":
-        #     data['city'] = "Metropolitian"
-        # else:
-        #     None
-            
-        
-        # if not pickup_location_latitude or not pickup_location_longitude or not delivery_location_latitude or not delivery_location_longitude:
-        #     return jsonify({'error': 'Invalid address'}), 400
-        
-        pickup_location_latitude = 22.745049
-        pickup_location_longitude = 75.892471
-        delivery_location_latitude = 22.765049
-        delivery_location_longitude = 75.912471
+        # Hardcoded coordinates for testing
+        pickup_location_latitude = 12.954242231599048
+        pickup_location_longitude = 77.58607487423697
+        delivery_location_latitude = 13.007011276609017
+        delivery_location_longitude = 77.59365422340476
         traffic_index = 1.2
         weathercondition = "Sunny"
         temperature = 29.0
@@ -74,15 +57,25 @@ def predict_delivery_time():
         logging.info(f"predicted_time: {predicted_time}")
         pipeline_params['Time_taken'] = predicted_time[0]
         data_into_db(pipeline_params)
-        return jsonify({
-            'predicted_time': round(predicted_time[0], 2)
-        })
+
+        response_data = {
+            'predicted_time': round(predicted_time[0], 2),
+            'pickup': {
+                'lat': float(pickup_location_latitude),
+                'lng': float(pickup_location_longitude)
+            },
+            'delivery': {
+                'lat': float(delivery_location_latitude),
+                'lng': float(delivery_location_longitude)
+            }
+        }
+        
+        logging.info(f"Sending response: {response_data}")
+        return jsonify(response_data)
 
     except Exception as e:
-        print("Error in /predict:", str(e))
-        return jsonify({
-            'error': str(e)
-        }), 500
+        logging.error(f"Error in predict_delivery_time: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/geocode', methods=['POST'])
 def geocode_address():

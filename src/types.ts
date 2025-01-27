@@ -1,10 +1,10 @@
 export interface DeliveryOrder {
-  id: string;
+  id?: string;
   pickupAddress: string;
   address: string;
   city: string;
-  status: "pending" | "in-progress" | "delivered";
-  predictedTime?: number;
+  status?: "pending" | "delivered";
+  predictedTime?: number | null; // Update type to include null
 }
 
 export interface PredictionRequest {
@@ -16,7 +16,6 @@ export interface PredictionRequest {
 export interface RoutePoint {
   lat: number;
   lng: number;
-  order?: DeliveryOrder;
 }
 
 export interface DeliveryMetrics {
