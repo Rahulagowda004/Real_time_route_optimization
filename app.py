@@ -67,7 +67,7 @@ def predict_delivery_time():
         data_into_db(pipeline_params)
 
         response_data = {
-            'predicted_time': round(predicted_time[0], 2),
+            'predicted_time': int(predicted_time[0]),
             'pickup': {
                 'lat': float(pickup_location_latitude),
                 'lng': float(pickup_location_longitude)
