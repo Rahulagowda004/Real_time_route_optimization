@@ -15,3 +15,5 @@ geopy
 mysql-connector-python
 opencage
 joblib
+geocode
+requests

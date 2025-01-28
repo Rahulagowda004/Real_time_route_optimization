@@ -64,23 +64,27 @@ def load_object(file_path):
     except Exception as e:
         raise CustomException(e, sys)
     
-geocoder = OpenCageGeocode(os.getenv("OPENCAGE_API_KEY"))
+
 
 def get_coordinates(address):
     try:
+        geocoder = OpenCageGeocode(os.getenv("OPENCAGE_API_KEY"))
         result = geocoder.geocode(address)
-        
         if result:
-            city = result[0]['components']['_normalized_city']
+            geocoder = OpenCageGeocode(os.getenv("OPENCAGE_API_KEY"))
+            result = geocoder.geocode(address)
             lat = result[0]['geometry']['lat']
             lng = result[0]['geometry']['lng']
+            city = result[0]['components'].get('city') or \
+                result[0]['components'].get('town') or \
+                result[0]['components'].get('village')
             return lat, lng, city
-            logging.info("Coordinates fetched successfully")
         else:
             logging.info("Address not found")
             print("Address not found")
             return None, None, None
     except Exception as e:
+        logging.error(CustomException(e, sys))
         raise CustomException(e, sys)
     
 def get_traffic_index( latitude, longitude):
