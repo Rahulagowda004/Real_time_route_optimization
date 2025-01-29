@@ -1,17 +1,27 @@
 FROM python:3.11-slim
 
-RUN apt-get update && apt-get install -y nodejs npm && npm install -g pm2
-
+# Set working directory
 WORKDIR /app
 
-COPY . /app
+RUN apt-get update && apt-get install -y \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
 
-RUN npm install
+RUN pip install -r requirements.txt
+
+RUN echo "TOMTOM_API_KEY=rGT85lmN9pMxHZFbcsYO3zFpGf2vcCKc\n\
+OPENWEATHER_API_KEY=66c1b6b7e7ece7e19bdbc982d0f23530\n\
+OPENCAGE_API_KEY=02040a72cde349c7a27d5aed2bd42e52\n\
+FLASK_APP=app.py\n\
+FLASK_ENV=development\n\
+FLASK_DEBUG=1\n\
+MYSQL_HOST=db\n\
+MYSQL_USER=root\n\
+MYSQL_PASSWORD=sudha010274\n\
+MYSQL_DATABASE=translogi" > .env
 
 EXPOSE 5000
 
-ENV NAME World
-
-CMD ["pm2-runtime", "start", "app.py", "--interpreter", "python3", "--name", "app", "--", "&&", "npm", "run", "dev"]
+CMD ["python", "app.py"]

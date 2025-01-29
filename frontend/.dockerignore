@@ -1,0 +1,10 @@
+
+node_modules
+dist
+.env
+logs
+node_modules
+.venv
+.vscode
+.github
+_pycache
