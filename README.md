@@ -4,26 +4,9 @@
 A cutting-edge system designed to revolutionize delivery operations by optimizing routes in real-time, accounting for traffic, delivery constraints, and dynamic conditions.
 ---
 
-## 🌟 Features
-
 - **Real-Time Route Optimization**  
   Continuously calculates the most efficient routes based on current conditions.
-
-- **Multi-Vehicle Support**  
-  Seamlessly handles fleet routing to maximize efficiency.
-
-- **Dynamic Traffic Integration**  
-  Adapts to real-time traffic and weather changes to ensure timely deliveries.
-
-- **Delivery Time Windows**  
-  Guarantees adherence to customer delivery schedules.
-
-- **Load Balancing**  
-  Optimizes vehicle capacity utilization for cost efficiency.
-
-- **Live Order Tracking**  
-  Provides real-time updates and order tracking.
-
+  
 ---
 
 ## 🚀 Quick Start
