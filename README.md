@@ -57,19 +57,13 @@ A cutting-edge system designed to revolutionize delivery operations by optimizin
 
 ### 🖼 Frontend Setup
 
-1. **Navigate to the Frontend Directory** (if applicable):
-
-   ```bash
-   cd frontend
-   ```
-
-2. **Install Node.js Dependencies**:
+1. **Install Node.js Dependencies**:
 
    ```bash
    npm install
    ```
 
-3. **Start the Frontend Server**:
+2. **Start the Frontend Server**:
    ```bash
    npm run dev
    ```
